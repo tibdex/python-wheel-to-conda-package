@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "python-wheel-to-conda-package"
+version = "0.1.0"
+description = ""
+authors = ["Thibault Derousseaux <tibdex@gmail.com>"]
+readme = "README.md"
+packages = [{include = "python_wheel_to_conda_package"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.group.dev.dependencies]
+black = "*"
+isort = "*"
+mypy = "*"
+pandas = "*"
+pandas-stubs = "*"
+pytest = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+combine_as_imports = "True"
+
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = [
+  "setuptools"
+]
+ignore_missing_imports = true
