@@ -20,4 +20,4 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v2
         with:
           conda-build-version: "3.23.3"
-      - run: poetry run pytest
+      - run: poetry run pytest --capture=no
