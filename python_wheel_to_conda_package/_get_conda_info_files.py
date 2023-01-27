@@ -4,8 +4,8 @@ import json
 import re
 from typing import Any, Dict, Iterable
 
-from ._get_site_packages_path import get_site_packages_path
 from ._get_conda_dependency_version import get_conda_dependency_version
+from ._get_site_packages_path import get_site_packages_path
 from ._wheel_dist_info import RecordItem, WheelDistInfo
 
 _JSON_INDENT = 2
