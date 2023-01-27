@@ -16,6 +16,16 @@ from ._wheel_dist_info import WheelDistInfo
 def python_wheel_to_conda_package(
     wheel_path: Path, /, *, output_directory: Optional[Path] = None
 ) -> Path:
+    """Convert a Pure-Python Wheel to a noarch Conda package.
+
+    Args:
+        wheel_path: The path to the Wheel file to convert.
+        output_directory: The directory in which the Conda package will be created.
+            If ``None``, the directory of the input Wheel is used.
+
+    Returns:
+        The path of the created Conda package.
+    """
     if not output_directory:
         output_directory = wheel_path.parent
 
