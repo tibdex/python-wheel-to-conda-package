@@ -31,7 +31,9 @@ def _get_index_json(*, timestamp: int, wheel_dist_info: WheelDistInfo) -> str:
 
     for wheel_dependency in wheel_dist_info.metadata.requires_dist:
         dependency_name, dependency_version = wheel_dependency.split(" ", maxsplit=1)
-        depends.append(f"{dependency_name} {get_conda_dependency_version(dependency_version.strip())}".strip())
+        depends.append(
+            f"{dependency_name} {get_conda_dependency_version(dependency_version.strip())}".strip()
+        )
 
     index: Dict[str, Any] = {
         "arch": None,

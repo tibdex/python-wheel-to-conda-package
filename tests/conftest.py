@@ -16,7 +16,7 @@ def setup_args_fixture() -> Mapping[str, Any]:
     )
     assert spec
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module) # type: ignore[union-attr]
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
     setup_args = getattr(module, "setup_args")
     assert isinstance(setup_args, dict)
     return setup_args
