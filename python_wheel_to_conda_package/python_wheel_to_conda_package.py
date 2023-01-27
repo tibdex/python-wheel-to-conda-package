@@ -2,7 +2,6 @@ import json
 import tarfile
 from io import BytesIO
 from pathlib import Path
-from tarfile import TarInfo
 from typing import Optional
 from zipfile import ZipFile
 
@@ -54,13 +53,15 @@ def python_wheel_to_conda_package(
             for file_path, file_content in conda_info_files.items():
                 file_bytes = bytes(file_content, "utf-8")
 
-                tar_info = TarInfo(f"info/{file_path}")
+                tar_info = tarfile.TarInfo(f"info/{file_path}")
                 tar_info.size = len(file_bytes)
 
                 tar.addfile(tar_info, BytesIO(file_bytes))
 
             for record_item in wheel_dist_info.record.items:
-                tar_info = TarInfo(get_site_packages_path(record_item.file_path))
+                tar_info = tarfile.TarInfo(
+                    get_site_packages_path(record_item.file_path)
+                )
                 tar_info.size = record_item.size_in_bytes
 
                 tar.addfile(tar_info, zip.open(record_item.file_path))

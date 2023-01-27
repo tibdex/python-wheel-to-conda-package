@@ -1,6 +1,2 @@
 .venv/
 __pycache__/
-
-tests/test-lib/build/
-tests/test-lib/dist/
-tests/test-lib/test_lib.egg-info/
