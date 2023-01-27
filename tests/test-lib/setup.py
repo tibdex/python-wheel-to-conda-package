@@ -12,7 +12,9 @@ setup_args = dict(
         ]
     },
     python_requires=">=3.8",
-    install_requires=["pandas>=1.5"],
+    install_requires=[
+        # "pandas>=1.5",
+    ],
     py_modules=[],
 )
 
