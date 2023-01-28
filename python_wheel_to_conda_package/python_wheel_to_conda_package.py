@@ -25,7 +25,13 @@ def python_wheel_to_conda_package(
     Returns:
         The path of the created Conda package.
     """
-    if not output_directory:
+    if not wheel_path.is_file():
+        raise ValueError(f"`{wheel_path}` does not point to an existing path.")
+
+    if output_directory:
+        if not output_directory.is_dir():
+            raise ValueError(f"`{output_directory}` is not a directory.")
+    else:
         output_directory = wheel_path.parent
 
     timestamp = round(wheel_path.stat().st_mtime)
