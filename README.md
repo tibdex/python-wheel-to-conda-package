@@ -1,5 +1,5 @@
 <a href="https://pypi.org/project/python-wheel-to-conda-package" target="_blank">
-  <img src="https://img.shields.io/pypi/v/python-wheel-to-conda-package?color=%2334D058&label=pypi%20package" alt="Package version">
+  <img src="https://img.shields.io/pypi/v/python-wheel-to-conda-package" alt="Package version">
 </a>
 
 # Python Wheel to Conda package
