@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "python-wheel-to-conda-package"
-version = "0.1.0"
+version = "0.1.1"
 description = "Convert a Pure-Python Wheel to a noarch Conda package"
 license = "MIT"
 authors = ["Thibault Derousseaux <tibdex@gmail.com>"]
