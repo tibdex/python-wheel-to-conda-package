@@ -1,0 +1,17 @@
+name: Publish
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Publish
+    environment: publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup
+      - run: poetry build --format=wheel
+      - run: poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+      - run: poetry publish

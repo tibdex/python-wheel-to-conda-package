@@ -4,8 +4,8 @@ import json
 import re
 from typing import Any, Dict, Iterable
 
-from ._get_site_packages_path import get_site_packages_path
 from ._get_conda_dependency_version import get_conda_dependency_version
+from ._get_site_packages_path import get_site_packages_path
 from ._wheel_dist_info import RecordItem, WheelDistInfo
 
 _JSON_INDENT = 2
@@ -31,7 +31,9 @@ def _get_index_json(*, timestamp: int, wheel_dist_info: WheelDistInfo) -> str:
 
     for wheel_dependency in wheel_dist_info.metadata.requires_dist:
         dependency_name, dependency_version = wheel_dependency.split(" ", maxsplit=1)
-        depends.append(f"{dependency_name} {get_conda_dependency_version(dependency_version.strip())}".strip())
+        depends.append(
+            f"{dependency_name} {get_conda_dependency_version(dependency_version.strip())}".strip()
+        )
 
     index: Dict[str, Any] = {
         "arch": None,
