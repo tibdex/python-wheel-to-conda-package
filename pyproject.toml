@@ -1,11 +1,13 @@
 [tool.poetry]
-name = "python-wheel-to-conda-package"
-version = "0.1.1"
-description = "Convert a Pure-Python Wheel to a noarch Conda package"
-license = "MIT"
 authors = ["Thibault Derousseaux <tibdex@gmail.com>"]
-readme = "README.md"
+description = "Convert a Pure-Python Wheel to a noarch Conda package"
+keywords = ["conda", "conda-package", "python-wheel", "wheel"]
+license = "MIT"
+name = "python-wheel-to-conda-package"
 packages = [{include = "python_wheel_to_conda_package"}]
+readme = "README.md"
+repository = "https://github.com/tibdex/python-wheel-to-conda-package"
+version = "0.1.2"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -17,6 +19,9 @@ mypy = "*"
 pandas = "*"
 pandas-stubs = "*"
 pytest = "*"
+
+[tool.poetry.scripts]
+python_wheel_to_conda_package = 'python_wheel_to_conda_package.__main__:main'
 
 [build-system]
 requires = ["poetry-core"]

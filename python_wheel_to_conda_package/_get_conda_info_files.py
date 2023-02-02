@@ -17,7 +17,7 @@ def _get_index_json(*, timestamp: int, wheel_dist_info: WheelDistInfo) -> str:
 
     if wheel_dist_info.wheel.build_string:
         match = re.match(
-            r"^(?P<build_number>\d+)_(?P<build_string>\d+)",
+            r"^(?P<build_number>\d+)_(?P<build_string>[a-z0-9]+)",
             wheel_dist_info.wheel.build_string,
         )
 
@@ -30,10 +30,15 @@ def _get_index_json(*, timestamp: int, wheel_dist_info: WheelDistInfo) -> str:
     depends = [f"python {wheel_dist_info.metadata.requires_python}"]
 
     for wheel_dependency in wheel_dist_info.metadata.requires_dist:
-        dependency_name, dependency_version = wheel_dependency.split(" ", maxsplit=1)
-        depends.append(
-            f"{dependency_name} {get_conda_dependency_version(dependency_version.strip())}".strip()
-        )
+        conda_dependency = wheel_dependency
+
+        if " " in wheel_dependency:
+            dependency_name, dependency_version = wheel_dependency.split(
+                " ", maxsplit=1
+            )
+            conda_dependency = f"{dependency_name} {get_conda_dependency_version(dependency_version.strip())}".strip()
+
+        depends.append(conda_dependency)
 
     index: Dict[str, Any] = {
         "arch": None,

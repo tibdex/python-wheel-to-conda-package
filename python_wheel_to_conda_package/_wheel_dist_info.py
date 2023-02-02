@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import hashlib
 from base64 import urlsafe_b64decode
 from dataclasses import dataclass
 from typing import Dict, List, Mapping, Optional, Sequence
+
+_RECORD_FILENAME = "RECORD"
 
 
 def _validate_metadata_version(version: str, /) -> str:
@@ -90,16 +93,31 @@ class RecordItem:
     size_in_bytes: int
 
     @classmethod
-    def parse(cls, line: str, /) -> RecordItem:
-        file_path, sha256, size_in_bytes = line.split(",")
+    def parse(
+        cls, line: str, /, *, dist_info_folder_name: str, record: bytes
+    ) -> RecordItem:
+        file_path, _sha256, _size_in_bytes = line.split(",")
+
+        if _sha256 and _size_in_bytes:
+            # Reverse logic of https://github.com/pypa/pip/blob/c9df690f3b5bb285a855953272e6fe24f69aa08a/src/pip/_internal/wheel.py#L71-L84.
+            sha256 = urlsafe_b64decode(
+                f"{_sha256[len('sha256=') :]}=".encode("latin1")
+            ).hex()
+            size_in_bytes = int(_size_in_bytes)
+        else:
+            record_path = f"{dist_info_folder_name}/{_RECORD_FILENAME}"
+            if file_path != record_path:
+                raise RuntimeError(
+                    f"`{record_path}` is the only file that can have empty sha256 and size information but got `{file_path}`."
+                )
+
+            sha256 = hashlib.sha256(record).hexdigest()
+            size_in_bytes = len(record)
 
         return RecordItem(
             file_path=file_path,
-            # Reverse logic of https://github.com/pypa/pip/blob/c9df690f3b5bb285a855953272e6fe24f69aa08a/src/pip/_internal/wheel.py#L71-L84.
-            sha256=urlsafe_b64decode(
-                f"{sha256[len('sha256=') :]}=".encode("latin1")
-            ).hex(),
-            size_in_bytes=int(size_in_bytes),
+            sha256=sha256,
+            size_in_bytes=size_in_bytes,
         )
 
 
@@ -108,12 +126,13 @@ class Record:
     items: Sequence[RecordItem]
 
     @classmethod
-    def parse(cls, record: str, /, *, module_name: str) -> Record:
+    def parse(cls, record: bytes, /, *, dist_info_folder_name: str) -> Record:
         return Record(
             items=[
-                RecordItem.parse(line)
-                for line in record.splitlines()
-                if line.startswith(f"{module_name}/")
+                RecordItem.parse(
+                    line, dist_info_folder_name=dist_info_folder_name, record=record
+                )
+                for line in record.decode().rstrip().splitlines()
             ]
         )
 
@@ -157,12 +176,15 @@ class WheelDistInfo:
     wheel: Wheel
 
     @classmethod
-    def parse(cls, dist_info_files: Mapping[str, str], /) -> WheelDistInfo:
-        module_name = dist_info_files["top_level.txt"]
-
+    def parse(
+        cls, dist_info_files: Mapping[str, bytes], /, *, dist_info_folder_name: str
+    ) -> WheelDistInfo:
         return WheelDistInfo(
-            metadata=Metadata.parse(dist_info_files["METADATA"]),
-            module_name=module_name,
-            record=Record.parse(dist_info_files["RECORD"], module_name=module_name),
-            wheel=Wheel.parse(dist_info_files["WHEEL"]),
+            metadata=Metadata.parse(dist_info_files["METADATA"].decode()),
+            module_name=dist_info_files["top_level.txt"].decode().rstrip(),
+            record=Record.parse(
+                dist_info_files[_RECORD_FILENAME],
+                dist_info_folder_name=dist_info_folder_name,
+            ),
+            wheel=Wheel.parse(dist_info_files["WHEEL"].decode().rstrip()),
         )
