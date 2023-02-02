@@ -68,7 +68,7 @@ def wheel_path_fixture(
 
 @pytest.fixture(name="additional_requirements", scope="session")
 def additional_requirements_fixture() -> Mapping[str, str]:
-    return {"requests": "2.28.1"}
+    return {"graphviz": "2.50.0"}
 
 
 @pytest.fixture(name="conda_package_path", scope="session")
