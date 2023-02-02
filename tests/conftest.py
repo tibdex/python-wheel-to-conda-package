@@ -36,12 +36,12 @@ def setup_args_fixture(test_lib_directory: Path) -> Mapping[str, Any]:
 
 @pytest.fixture(name="build_number", scope="session")
 def build_number_fixture() -> int:
-    return 0
+    return 42
 
 
 @pytest.fixture(name="build_string", scope="session")
 def build_string_fixture() -> str:
-    return "1337"
+    return "1337gg"
 
 
 @pytest.fixture(name="wheel_path", scope="session")

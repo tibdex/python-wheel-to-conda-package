@@ -41,12 +41,14 @@ def python_wheel_to_conda_package(
 
         dist_info_folder_name = get_dist_info_folder_name(file_paths)
         dist_info_files = {
-            file_path.split("/")[-1]: read_zip_file(zip, file_path).strip()
+            file_path.split("/")[-1]: read_zip_file(zip, file_path)
             for file_path in file_paths
             if file_path.startswith(f"{dist_info_folder_name}/")
         }
 
-        wheel_dist_info = WheelDistInfo.parse(dist_info_files)
+        wheel_dist_info = WheelDistInfo.parse(
+            dist_info_files, dist_info_folder_name=dist_info_folder_name
+        )
         conda_info_files = get_conda_info_files(
             timestamp=timestamp, wheel_dist_info=wheel_dist_info
         )
