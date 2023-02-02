@@ -5,6 +5,8 @@ from subprocess import check_output, run
 from textwrap import dedent
 from typing import Any, Dict, List, Mapping
 
+from ._get_module_name import get_module_name
+
 
 def _install_conda_package(
     package_name: str, /, *, local_conda_channel_path: Path
@@ -38,11 +40,11 @@ def _get_installed_conda_packages() -> Dict[str, str]:
     }
 
 
-def _run_python_package_inside_conda_env(
-    package_name: str, *, timeout: timedelta
+def _run_python_module_inside_conda_env(
+    module_name: str, /, *, timeout: timedelta
 ) -> str:
     return check_output(
-        ["conda", "run", package_name],
+        ["conda", "run", "python", "-m", module_name],
         text=True,
         timeout=timeout.total_seconds(),
     )
@@ -73,8 +75,8 @@ def test_conda_package(
     for requirement_name, required_version in additional_requirements.items():
         assert installed_packages[requirement_name] == required_version
 
-    output = _run_python_package_inside_conda_env(
-        package_name, timeout=timedelta(seconds=10)
+    output = _run_python_module_inside_conda_env(
+        get_module_name(package_name), timeout=timedelta(seconds=10)
     )
 
     assert (

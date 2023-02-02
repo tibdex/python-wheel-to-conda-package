@@ -17,9 +17,6 @@ SETUP_ARGS = {
     "install_requires": [
         "pandas>=1.2",
     ],
-    "entry_points": {
-        "console_scripts": [f"""{_NAME}={_NAME.replace("-", "_")}.__main__:main"""]
-    },
     "py_modules": [],
 }
 

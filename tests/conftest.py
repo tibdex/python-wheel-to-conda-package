@@ -8,6 +8,8 @@ import pytest
 
 from python_wheel_to_conda_package import python_wheel_to_conda_package
 
+from ._get_module_name import get_module_name
+
 
 @pytest.fixture(name="test_lib_directory", scope="session")
 def test_lib_directory_fixture(tmp_path_factory: pytest.TempPathFactory) -> Path:
@@ -60,7 +62,7 @@ def wheel_path_fixture(
     path = Path(
         test_lib_directory
         / "dist"
-        / f"""{setup_args["name"].replace("-", "_")}-{setup_args["version"]}-{wheel_build_number}-py3-none-any.whl"""
+        / f"""{get_module_name(setup_args["name"])}-{setup_args["version"]}-{wheel_build_number}-py3-none-any.whl"""
     )
     assert path.exists()
     return path
