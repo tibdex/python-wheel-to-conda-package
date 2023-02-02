@@ -7,7 +7,7 @@ name = "python-wheel-to-conda-package"
 packages = [{include = "python_wheel_to_conda_package"}]
 readme = "README.md"
 repository = "https://github.com/tibdex/python-wheel-to-conda-package"
-version = "0.1.2"
+version = "0.2.0"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -21,7 +21,7 @@ pandas-stubs = "*"
 pytest = "*"
 
 [tool.poetry.scripts]
-python_wheel_to_conda_package = 'python_wheel_to_conda_package.__main__:main'
+python-wheel-to-conda-package = 'python_wheel_to_conda_package.__main__:main'
 
 [build-system]
 requires = ["poetry-core"]
