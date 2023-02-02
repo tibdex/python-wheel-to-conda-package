@@ -8,8 +8,6 @@ import pytest
 
 from python_wheel_to_conda_package import python_wheel_to_conda_package
 
-from ._get_module_name import get_module_name
-
 
 @pytest.fixture(name="test_lib_directory", scope="session")
 def test_lib_directory_fixture(tmp_path_factory: pytest.TempPathFactory) -> Path:
@@ -29,7 +27,7 @@ def setup_args_fixture(test_lib_directory: Path) -> Mapping[str, Any]:
     assert spec
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)  # type: ignore[union-attr]
-    setup_args = getattr(module, "setup_args")
+    setup_args = getattr(module, "SETUP_ARGS")
     assert isinstance(setup_args, dict)
     return setup_args
 
@@ -62,18 +60,29 @@ def wheel_path_fixture(
     path = Path(
         test_lib_directory
         / "dist"
-        / f"""{get_module_name(setup_args["name"])}-{setup_args["version"]}-{wheel_build_number}-py3-none-any.whl"""
+        / f"""{setup_args["name"].replace("-", "_")}-{setup_args["version"]}-{wheel_build_number}-py3-none-any.whl"""
     )
     assert path.exists()
     return path
 
 
+@pytest.fixture(name="additional_requirements", scope="session")
+def additional_requirements_fixture() -> Mapping[str, str]:
+    return {"requests": "2.28.1"}
+
+
 @pytest.fixture(name="conda_package_path", scope="session")
 def conda_package_path_fixture(
-    tmp_path_factory: pytest.TempPathFactory, wheel_path: Path
+    additional_requirements: Mapping[str, str],
+    tmp_path_factory: pytest.TempPathFactory,
+    wheel_path: Path,
 ) -> Path:
     package_directory = tmp_path_factory.mktemp("conda-package")
-    return python_wheel_to_conda_package(wheel_path, output_directory=package_directory)
+    return python_wheel_to_conda_package(
+        wheel_path,
+        additional_requirements=additional_requirements,
+        output_directory=package_directory,
+    )
 
 
 @pytest.fixture(name="local_conda_channel_path", scope="session")

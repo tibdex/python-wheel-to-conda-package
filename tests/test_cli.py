@@ -1,15 +1,11 @@
 from pathlib import Path
 from subprocess import check_output
 
-import python_wheel_to_conda_package
-
 
 def test_cli(tmp_path: Path, wheel_path: Path) -> None:
     output = check_output(
         [
-            "python",
-            "-m",
-            python_wheel_to_conda_package.__name__,
+            "python-wheel-to-conda-package",
             str(wheel_path),
             "--output-directory",
             str(tmp_path),

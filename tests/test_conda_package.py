@@ -1,10 +1,9 @@
+import json
 from datetime import timedelta
 from pathlib import Path
 from subprocess import check_output, run
 from textwrap import dedent
-from typing import Any, Mapping
-
-from ._get_module_name import get_module_name
+from typing import Any, Dict, List, Mapping
 
 
 def _install_conda_package(
@@ -23,25 +22,59 @@ def _install_conda_package(
     )
 
 
-def _run_python_module_inside_conda_env(module_name: str, *, timeout: timedelta) -> str:
+def _get_installed_conda_packages() -> Dict[str, str]:
+    output = check_output(
+        [
+            "conda",
+            "list",
+            "--json",
+        ],
+        text=True,
+    )
+    installed_packages: List[Dict[str, str]] = json.loads(output)
+    return {
+        str(installed_package["name"]): str(installed_package["version"])
+        for installed_package in installed_packages
+    }
+
+
+def _run_python_package_inside_conda_env(
+    package_name: str, *, timeout: timedelta
+) -> str:
     return check_output(
-        ["conda", "run", "python", "-m", module_name],
+        ["conda", "run", package_name],
         text=True,
         timeout=timeout.total_seconds(),
     )
 
 
 def test_conda_package(
-    local_conda_channel_path: Path, setup_args: Mapping[str, Any]
+    additional_requirements: Mapping[str, str],
+    local_conda_channel_path: Path,
+    setup_args: Mapping[str, Any],
 ) -> None:
     package_name = setup_args["name"]
+
+    installed_packages = _get_installed_conda_packages()
+
+    assert package_name not in installed_packages
+
+    for requirement_name in additional_requirements:
+        assert requirement_name not in installed_packages
 
     _install_conda_package(
         package_name, local_conda_channel_path=local_conda_channel_path
     )
 
-    output = _run_python_module_inside_conda_env(
-        get_module_name(package_name), timeout=timedelta(seconds=10)
+    installed_packages = _get_installed_conda_packages()
+
+    assert package_name in installed_packages
+
+    for requirement_name, required_version in additional_requirements.items():
+        assert installed_packages[requirement_name] == required_version
+
+    output = _run_python_package_inside_conda_env(
+        package_name, timeout=timedelta(seconds=10)
     )
 
     assert (

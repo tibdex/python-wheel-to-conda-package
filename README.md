@@ -22,6 +22,6 @@ conda_package_path = python_wheel_to_conda_package(wheel_path, output_directory=
 ### As a command line tool
 
 ```console
-$ python_wheel_to_conda_package test_lib-0.4.2.dev0-42_1337gg-py3-none-any.whl --output-directory /a/b/c/
+$ python-wheel-to-conda-package test_lib-0.4.2.dev0-42_1337gg-py3-none-any.whl --output-directory /a/b/c/
 /a/b/c/test-lib-0.4.2.dev0-1337gg.tar.bz2
 ```
