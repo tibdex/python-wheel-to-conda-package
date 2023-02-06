@@ -12,3 +12,5 @@ def get_wheel_folder_path(
         )
         if match:
             return match.group("folder_path")
+
+    return None

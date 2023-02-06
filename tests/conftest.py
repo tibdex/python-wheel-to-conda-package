@@ -6,7 +6,6 @@ from typing import Any, Mapping
 
 import pytest
 
-
 from ._get_module_name import get_module_name
 
 

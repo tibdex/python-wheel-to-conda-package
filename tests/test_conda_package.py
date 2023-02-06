@@ -1,15 +1,16 @@
 import json
 from datetime import timedelta
-from shutil import copyfile
 from pathlib import Path, PurePosixPath
+from shutil import copyfile
 from subprocess import check_output, run
 from textwrap import dedent
 from typing import Any, Dict, List, Mapping
 
-from ._get_module_name import get_module_name
+import pytest
+
 from python_wheel_to_conda_package import python_wheel_to_conda_package
 
-import pytest
+from ._get_module_name import get_module_name
 
 
 @pytest.fixture(name="conda_package_path", scope="module")
