@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, Dict, Iterable, Mapping
+from typing import Any, Dict, Iterable, Mapping, Optional
 
 from ._get_conda_version_specification import get_conda_version_specification
-from ._get_site_packages_path import get_site_packages_path
+from ._get_wheel_path_to_conda_path import get_wheel_path_to_conda_path
 from ._wheel_dist_info import RecordItem, WheelDistInfo
 
 _JSON_INDENT = 2
@@ -56,6 +56,8 @@ def _get_index_json(
         "build_number": build_number,
         "depends": [
             f"{package_name} {version_specification}"
+            if version_specification
+            else package_name
             for package_name, version_specification in requirements.items()
         ],
         "name": wheel_dist_info.metadata.package_name,
@@ -69,11 +71,18 @@ def _get_index_json(
     return json.dumps(index, indent=_JSON_INDENT)
 
 
-def _get_paths_json(record_items: Iterable[RecordItem], /) -> str:
+def _get_paths_json(
+    record_items: Iterable[RecordItem],
+    /,
+    *,
+    data_folder_name: Optional[str] = None,
+) -> str:
     paths: Dict[str, Any] = {
         "paths": [
             {
-                "_path": get_site_packages_path(record_item.file_path),
+                "_path": get_wheel_path_to_conda_path(
+                    record_item.file_path, data_folder_name=data_folder_name
+                ),
                 "path_type": "hardlink",
                 "sha256": record_item.sha256,
                 "size_in_bytes": record_item.size_in_bytes,
@@ -89,6 +98,7 @@ def _get_paths_json(record_items: Iterable[RecordItem], /) -> str:
 def get_conda_info_files(
     *,
     additional_requirements: Mapping[str, str],
+    data_folder_name: Optional[str] = None,
     timestamp: int,
     wheel_dist_info: WheelDistInfo,
 ) -> Dict[str, str]:
@@ -98,5 +108,11 @@ def get_conda_info_files(
             timestamp=timestamp,
             wheel_dist_info=wheel_dist_info,
         ),
-        "paths.json": _get_paths_json(wheel_dist_info.record.items),
+        "link.json": json.dumps(
+            {"noarch": {"type": "python"}, "package_metadata_version": 1},
+            indent=_JSON_INDENT,
+        ),
+        "paths.json": _get_paths_json(
+            wheel_dist_info.record.items, data_folder_name=data_folder_name
+        ),
     }

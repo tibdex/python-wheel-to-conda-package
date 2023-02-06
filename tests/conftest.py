@@ -1,12 +1,10 @@
 import importlib
 from pathlib import Path
-from shutil import copyfile, copytree
+from shutil import copytree
 from subprocess import run
 from typing import Any, Mapping
 
 import pytest
-
-from python_wheel_to_conda_package import python_wheel_to_conda_package
 
 from ._get_module_name import get_module_name
 
@@ -66,39 +64,3 @@ def wheel_path_fixture(
     )
     assert path.exists()
     return path
-
-
-@pytest.fixture(name="additional_requirements", scope="session")
-def additional_requirements_fixture() -> Mapping[str, str]:
-    return {"graphviz": "2.50.0"}
-
-
-@pytest.fixture(name="conda_package_path", scope="session")
-def conda_package_path_fixture(
-    additional_requirements: Mapping[str, str],
-    tmp_path_factory: pytest.TempPathFactory,
-    wheel_path: Path,
-) -> Path:
-    package_directory = tmp_path_factory.mktemp("conda-package")
-    return python_wheel_to_conda_package(
-        wheel_path,
-        additional_requirements=additional_requirements,
-        output_directory=package_directory,
-    )
-
-
-@pytest.fixture(name="local_conda_channel_path", scope="session")
-def local_conda_channel_path_fixture(
-    conda_package_path: Path, tmp_path_factory: pytest.TempPathFactory
-) -> Path:
-    channel_directory = tmp_path_factory.mktemp("conda-channel")
-    noarch_directory = channel_directory / "noarch"
-    noarch_directory.mkdir()
-    copyfile(conda_package_path, noarch_directory / conda_package_path.name)
-
-    run(
-        ["conda", "index", str(channel_directory.absolute())],
-        check=True,
-    )
-
-    return channel_directory
