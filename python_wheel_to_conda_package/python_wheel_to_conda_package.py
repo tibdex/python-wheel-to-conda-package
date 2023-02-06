@@ -6,10 +6,12 @@ from typing import Mapping, Optional
 from zipfile import ZipFile
 
 from ._get_conda_info_files import get_conda_info_files
-from ._get_dist_info_folder_name import get_dist_info_folder_name
-from ._get_site_packages_path import get_site_packages_path
+from ._get_wheel_folder_path import get_wheel_folder_path
+from ._get_wheel_path_to_conda_path import get_wheel_path_to_conda_path
 from ._read_zip_file import read_zip_file
 from ._wheel_dist_info import WheelDistInfo
+
+_DIST_INFO_FOLDER_TYPE = "dist-info"
 
 
 def python_wheel_to_conda_package(
@@ -43,12 +45,22 @@ def python_wheel_to_conda_package(
     else:
         output_directory = wheel_path.parent
 
-    timestamp = round(wheel_path.stat().st_mtime)
+    timestamp = round(wheel_path.stat().st_mtime * 1000)
 
     with ZipFile(wheel_path) as zip:
         file_paths = zip.namelist()
 
-        dist_info_folder_name = get_dist_info_folder_name(file_paths)
+        dist_info_folder_name = get_wheel_folder_path(
+            file_paths, folder_type=_DIST_INFO_FOLDER_TYPE
+        )
+
+        if not dist_info_folder_name:
+            raise RuntimeError(
+                f"Could not find `{_DIST_INFO_FOLDER_TYPE}` folder name."
+            )
+
+        data_folder_name = get_wheel_folder_path(file_paths, folder_type="data/data")
+
         dist_info_files = {
             file_path.split("/")[-1]: read_zip_file(zip, file_path)
             for file_path in file_paths
@@ -60,6 +72,7 @@ def python_wheel_to_conda_package(
         )
         conda_info_files = get_conda_info_files(
             additional_requirements=additional_requirements,
+            data_folder_name=data_folder_name,
             timestamp=timestamp,
             wheel_dist_info=wheel_dist_info,
         )
@@ -79,7 +92,9 @@ def python_wheel_to_conda_package(
 
             for record_item in wheel_dist_info.record.items:
                 tar_info = tarfile.TarInfo(
-                    get_site_packages_path(record_item.file_path)
+                    get_wheel_path_to_conda_path(
+                        record_item.file_path, data_folder_name=data_folder_name
+                    )
                 )
                 tar_info.size = record_item.size_in_bytes
 

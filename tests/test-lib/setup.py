@@ -7,10 +7,16 @@ SETUP_ARGS = {
     "version": "0.4.2.dev0",
     "author": "test-author",
     "author_email": "test@email.io",
-    "packages": find_packages(exclude=["tests_*"]),
+    "data_files": [
+        (
+            "share/test-lib",
+            ["data/test.txt"],
+        )
+    ],
+    "packages": find_packages(),
     "package_data": {
         "test_lib": [
-            "data/*",
+            "resources/*",
         ]
     },
     "python_requires": ">=3.8",
