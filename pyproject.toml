@@ -7,9 +7,10 @@ name = "python-wheel-to-conda-package"
 packages = [{include = "python_wheel_to_conda_package"}]
 readme = "README.md"
 repository = "https://github.com/tibdex/python-wheel-to-conda-package"
-version = "0.2.1"
+version = "0.3.0"
 
 [tool.poetry.dependencies]
+poetry-core = "^1.5.1"
 python = "^3.8"
 
 [tool.poetry.group.dev.dependencies]

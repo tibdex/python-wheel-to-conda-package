@@ -1,10 +1,13 @@
 from __future__ import annotations
+from dataclasses import astuple
 
 import json
 import re
 from typing import Any, Dict, Iterable, Mapping, Optional
 
-from ._get_conda_version_specification import get_conda_version_specification
+from ._get_conda_package_match_specification import (
+    get_conda_package_match_specification,
+)
 from ._get_wheel_path_to_conda_path import get_wheel_path_to_conda_path
 from ._wheel_dist_info import RecordItem, WheelDistInfo
 
@@ -32,21 +35,13 @@ def _get_index_json(
         else:
             build_string = wheel_dist_info.wheel.build_string
 
-    requirements = {"python": wheel_dist_info.metadata.requires_python}
-
-    for wheel_requirement in wheel_dist_info.metadata.requires_dist:
-        package_name = wheel_requirement
-        conda_version_specification = ""
-
-        if " " in wheel_requirement:
-            package_name, wheel_version_declaration = wheel_requirement.split(
-                " ", maxsplit=1
-            )
-            conda_version_specification = get_conda_version_specification(
-                wheel_version_declaration
-            )
-
-        requirements[package_name] = conda_version_specification
+    requirements: Dict[str, str] = dict(
+        astuple(get_conda_package_match_specification(python_dependency_specification))
+        for python_dependency_specification in [
+            f"python {wheel_dist_info.metadata.requires_python}",
+            *wheel_dist_info.metadata.requires_dist,
+        ]
+    )
 
     requirements.update(additional_requirements)
 

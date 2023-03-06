@@ -360,6 +360,18 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
+name = "poetry-core"
+version = "1.5.1"
+description = "Poetry PEP 517 Build Backend"
+category = "main"
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "poetry_core-1.5.1-py3-none-any.whl", hash = "sha256:b1900dea81eb18feb7323d404e5f10430205541a4a683a912893f9d2b5807797"},
+    {file = "poetry_core-1.5.1.tar.gz", hash = "sha256:41887261358863f25831fa0ad1fe7e451fc32d1c81fcf7710ba5174cc0047c6d"},
+]
+
+[[package]]
 name = "pytest"
 version = "7.2.1"
 description = "pytest: simple powerful testing with Python"
@@ -449,4 +461,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "b231817de9dc9c5f3710fe2da7b29e1b1c4f97f537e22c7582953405b36299a9"
+content-hash = "e54d984c6897537ef81d1fd9a697d57b63690b4f6f7a9a078782c27ee8a48bdc"

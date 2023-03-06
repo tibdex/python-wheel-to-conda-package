@@ -73,7 +73,7 @@ class Metadata:
             raise ValueError("Missing package name.")
 
         if not requires_python:
-            raise ValueError("Missing Python requirement")
+            raise ValueError("Missing Python requirement.")
 
         if not version:
             raise ValueError("Missing version.")
