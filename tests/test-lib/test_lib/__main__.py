@@ -1,8 +1,8 @@
-from . import df
+from . import dataframe
 
 
 def main() -> None:
-    print(df)
+    print(dataframe)
 
 
 if __name__ == "__main__":

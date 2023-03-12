@@ -1,8 +1,9 @@
 import json
 import tarfile
+from collections.abc import Mapping
 from io import BytesIO
 from pathlib import Path
-from typing import Mapping, Optional
+from typing import Optional
 from zipfile import ZipFile
 
 from ._get_conda_info_files import get_conda_info_files
@@ -47,8 +48,8 @@ def python_wheel_to_conda_package(
 
     timestamp = round(wheel_path.stat().st_mtime * 1000)
 
-    with ZipFile(wheel_path) as zip:
-        file_paths = zip.namelist()
+    with ZipFile(wheel_path) as zip_file:
+        file_paths = zip_file.namelist()
 
         dist_info_folder_name = get_wheel_folder_path(
             file_paths, folder_type=_DIST_INFO_FOLDER_TYPE
@@ -62,7 +63,7 @@ def python_wheel_to_conda_package(
         data_folder_name = get_wheel_folder_path(file_paths, folder_type="data/data")
 
         dist_info_files = {
-            file_path.split("/")[-1]: read_zip_file(zip, file_path)
+            file_path.split("/")[-1]: read_zip_file(zip_file, file_path)
             for file_path in file_paths
             if file_path.startswith(f"{dist_info_folder_name}/")
         }
@@ -98,6 +99,6 @@ def python_wheel_to_conda_package(
                 )
                 tar_info.size = record_item.size_in_bytes
 
-                tar.addfile(tar_info, zip.open(record_item.file_path))
+                tar.addfile(tar_info, zip_file.open(record_item.file_path))
 
     return conda_package_path

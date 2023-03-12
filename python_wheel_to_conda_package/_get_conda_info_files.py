@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 from collections.abc import Iterable, Mapping
-from typing import Any, Optional
+from typing import Any
 
 from ._get_conda_version_specification import get_conda_version_specification
 from ._get_wheel_path_to_conda_path import get_wheel_path_to_conda_path
@@ -76,7 +76,7 @@ def _get_paths_json(
     record_items: Iterable[RecordItem],
     /,
     *,
-    data_folder_name: Optional[str] = None,
+    data_folder_name: str | None = None,
 ) -> str:
     paths: dict[str, Any] = {
         "paths": [
@@ -99,7 +99,7 @@ def _get_paths_json(
 def get_conda_info_files(
     *,
     additional_requirements: Mapping[str, str],
-    data_folder_name: Optional[str] = None,
+    data_folder_name: str | None = None,
     timestamp: int,
     wheel_dist_info: WheelDistInfo,
 ) -> dict[str, str]:
