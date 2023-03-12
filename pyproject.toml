@@ -10,15 +10,15 @@ repository = "https://github.com/tibdex/python-wheel-to-conda-package"
 version = "0.2.1"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.9,<3.12"
 
 [tool.poetry.group.dev.dependencies]
-black = "*"
-isort = "*"
-mypy = "*"
-pandas = "*"
-pandas-stubs = "*"
-pytest = "*"
+black = "^23.1"
+isort = "^5.12"
+mypy = "^1.1.1"
+pandas = "^1.5.3"
+pandas-stubs = "^1.5.3"
+pytest = "^7.2.2"
 
 [tool.poetry.scripts]
 python-wheel-to-conda-package = 'python_wheel_to_conda_package.__main__:main'

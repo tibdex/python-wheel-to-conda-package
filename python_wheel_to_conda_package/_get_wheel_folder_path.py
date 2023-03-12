@@ -1,5 +1,6 @@
 import re
-from typing import Iterable, Optional
+from collections.abc import Iterable
+from typing import Optional
 
 
 def get_wheel_folder_path(
