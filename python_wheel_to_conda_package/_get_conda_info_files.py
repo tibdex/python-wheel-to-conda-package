@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, Dict, Iterable, Mapping, Optional
+from collections.abc import Iterable, Mapping
+from typing import Any, Optional
 
 from ._get_conda_version_specification import get_conda_version_specification
 from ._get_wheel_path_to_conda_path import get_wheel_path_to_conda_path
@@ -48,9 +49,9 @@ def _get_index_json(
 
         requirements[package_name] = conda_version_specification
 
-    requirements.update(additional_requirements)
+    requirements |= additional_requirements
 
-    index: Dict[str, Any] = {
+    index: dict[str, Any] = {
         "arch": None,
         "build": build_string,
         "build_number": build_number,
@@ -77,7 +78,7 @@ def _get_paths_json(
     *,
     data_folder_name: Optional[str] = None,
 ) -> str:
-    paths: Dict[str, Any] = {
+    paths: dict[str, Any] = {
         "paths": [
             {
                 "_path": get_wheel_path_to_conda_path(
@@ -101,7 +102,7 @@ def get_conda_info_files(
     data_folder_name: Optional[str] = None,
     timestamp: int,
     wheel_dist_info: WheelDistInfo,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     return {
         "index.json": _get_index_json(
             additional_requirements=additional_requirements,

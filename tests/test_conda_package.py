@@ -1,10 +1,11 @@
 import json
+from collections.abc import Mapping
 from datetime import timedelta
 from pathlib import Path, PurePosixPath
 from shutil import copyfile
 from subprocess import check_output, run
 from textwrap import dedent
-from typing import Any, Dict, List, Mapping
+from typing import Any
 
 import pytest
 
@@ -49,7 +50,7 @@ def additional_requirements_fixture() -> Mapping[str, str]:
     return {"graphviz": "2.50.0"}
 
 
-def _get_installed_conda_packages() -> Dict[str, str]:
+def _get_installed_conda_packages() -> dict[str, str]:
     output = check_output(
         [
             "conda",
@@ -58,7 +59,7 @@ def _get_installed_conda_packages() -> Dict[str, str]:
         ],
         text=True,
     )
-    installed_packages: List[Dict[str, str]] = json.loads(output)
+    installed_packages: list[dict[str, str]] = json.loads(output)
     return {
         str(installed_package["name"]): str(installed_package["version"])
         for installed_package in installed_packages
@@ -124,7 +125,7 @@ def test_additional_requirements_installation(
 @pytest.fixture(name="conda_env_directory", scope="module")
 def conda_env_directory_fixture() -> Path:
     output = check_output(["conda", "info", "--json"])
-    info: Dict[str, Any] = json.loads(output)
+    info: dict[str, Any] = json.loads(output)
     active_prefix = info.get("active_prefix")
     return Path(str(active_prefix or info["default_prefix"]))
 

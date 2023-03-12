@@ -1,8 +1,9 @@
 import importlib
+from collections.abc import Mapping
 from pathlib import Path
 from shutil import copytree
 from subprocess import run
-from typing import Any, Mapping
+from typing import Any
 
 import pytest
 

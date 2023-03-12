@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import hashlib
 from base64 import urlsafe_b64decode
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Dict, List, Mapping, Optional, Sequence
+from typing import Mapping, Optional
 
 _RECORD_FILENAME = "RECORD"
 
@@ -43,7 +44,7 @@ class Metadata:
 
         metadata_version: Optional[str] = None
         package_name: Optional[str] = None
-        requires_dist: List[str] = []
+        requires_dist: list[str] = []
         requires_python: Optional[str] = None
         version: Optional[str] = None
 
@@ -143,7 +144,7 @@ class Wheel:
 
     @classmethod
     def parse(cls, wheel: str, /) -> Wheel:
-        entries: Dict[str, str] = {}
+        entries: dict[str, str] = {}
 
         for line in wheel.splitlines():
             key, value = line.split(": ", maxsplit=1)
