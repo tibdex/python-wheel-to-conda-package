@@ -28,7 +28,7 @@ def setup_args_fixture(test_lib_directory: Path) -> Mapping[str, Any]:
     assert spec
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)  # type: ignore[union-attr]
-    setup_args = getattr(module, "SETUP_ARGS")
+    setup_args = module.SETUP_ARGS
     assert isinstance(setup_args, dict)
     return setup_args
 

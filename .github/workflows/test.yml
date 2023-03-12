@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup
       - run: poetry run black --check .
-      - run: poetry run isort --check --gitignore .
+      - run: poetry run ruff check .
       - run: poetry run mypy --show-error-codes --package python_wheel_to_conda_package --package tests
       - uses: conda-incubator/setup-miniconda@v2
         with:

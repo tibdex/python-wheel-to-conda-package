@@ -6,7 +6,7 @@ from python_wheel_to_conda_package._get_conda_version_specification import (
 
 
 @pytest.mark.parametrize(
-    ["wheel_version_declaration", "expected_conda_version_specification"],
+    ("wheel_version_declaration", "expected_conda_version_specification"),
     [
         ("(~=17.0)", "~=17.0"),
         ("(==0.7.3.dev0)", "0.7.3.dev0"),

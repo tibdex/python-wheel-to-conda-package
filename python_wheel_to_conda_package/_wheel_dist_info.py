@@ -4,7 +4,6 @@ import hashlib
 from base64 import urlsafe_b64decode
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Mapping, Optional
 
 _RECORD_FILENAME = "RECORD"
 
@@ -42,11 +41,11 @@ class Metadata:
         # Ignore the long description which is separated by the `key: value` lines by an empty line.
         lines = lines[:empty_line_index]
 
-        metadata_version: Optional[str] = None
-        package_name: Optional[str] = None
+        metadata_version: str | None = None
+        package_name: str | None = None
         requires_dist: list[str] = []
-        requires_python: Optional[str] = None
-        version: Optional[str] = None
+        requires_python: str | None = None
+        version: str | None = None
 
         metadata_version_key = "Metadata-Version"
 
@@ -140,7 +139,7 @@ class Record:
 
 @dataclass(frozen=True)
 class Wheel:
-    build_string: Optional[str] = None
+    build_string: str | None = None
 
     @classmethod
     def parse(cls, wheel: str, /) -> Wheel:
