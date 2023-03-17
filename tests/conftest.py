@@ -1,36 +1,23 @@
-import importlib
-from collections.abc import Mapping
 from pathlib import Path
-from shutil import copytree
-from subprocess import run
-from typing import Any
+from shutil import rmtree
 
 import pytest
+from flit_core.config import LoadedConfig, read_flit_config
+from flit_core.wheel import make_wheel_in
 
-from ._get_module_name import get_module_name
+from ._add_build_tag_to_wheel import add_build_tag_to_wheel
+
+_PYPROJECT_TOML_FILENAME = "pyproject.toml"
 
 
 @pytest.fixture(name="test_lib_directory", scope="session")
-def test_lib_directory_fixture(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    test_lib_folder = "test-lib"
-    test_lib_directory = tmp_path_factory.mktemp(test_lib_folder)
-    copytree(
-        Path(__file__).parent / test_lib_folder, test_lib_directory, dirs_exist_ok=True
-    )
-    return test_lib_directory
+def test_lib_directory_fixture() -> Path:
+    return Path(__file__).parent / "test-lib"
 
 
-@pytest.fixture(name="setup_args", scope="session")
-def setup_args_fixture(test_lib_directory: Path) -> Mapping[str, Any]:
-    spec = importlib.util.spec_from_file_location(
-        "setup", str(test_lib_directory / "setup.py")
-    )
-    assert spec
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)  # type: ignore[union-attr]
-    setup_args = module.SETUP_ARGS
-    assert isinstance(setup_args, dict)
-    return setup_args
+@pytest.fixture(name="pyproject", scope="session")
+def pyproject_fixture(test_lib_directory: Path) -> LoadedConfig:
+    return read_flit_config(test_lib_directory / _PYPROJECT_TOML_FILENAME)
 
 
 @pytest.fixture(name="build_number", scope="session")
@@ -47,21 +34,17 @@ def build_string_fixture() -> str:
 def wheel_path_fixture(
     build_number: int,
     build_string: str,
-    setup_args: Mapping[str, Any],
     test_lib_directory: Path,
 ) -> Path:
-    wheel_build_number = f"{build_number}_{build_string}"
+    dist_directory = test_lib_directory / "dist"
 
-    run(
-        ["python", "setup.py", "bdist_wheel", "--build-number", wheel_build_number],
-        check=True,
-        cwd=test_lib_directory,
-    )
+    rmtree(dist_directory, ignore_errors=True)
+    dist_directory.mkdir()
 
-    path = Path(
-        test_lib_directory
-        / "dist"
-        / f"""{get_module_name(setup_args["name"])}-{setup_args["version"]}-{wheel_build_number}-py3-none-any.whl"""
-    )
-    assert path.exists()
-    return path
+    wheel_path: Path = make_wheel_in(
+        test_lib_directory / _PYPROJECT_TOML_FILENAME, wheel_directory=dist_directory
+    ).file
+
+    add_build_tag_to_wheel(wheel_path, f"{build_number}_{build_string}")
+
+    return wheel_path

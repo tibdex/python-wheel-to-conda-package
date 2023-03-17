@@ -4,8 +4,10 @@ import hashlib
 from base64 import urlsafe_b64decode
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from typing import ClassVar
 
 _RECORD_FILENAME = "RECORD"
+_WHEEL_FILENAME = "WHEEL"
 
 
 def _validate_metadata_version(version: str, /) -> str:
@@ -78,7 +80,7 @@ class Metadata:
         if not version:
             raise ValueError("Missing version.")
 
-        return Metadata(
+        return cls(
             package_name=package_name,
             requires_dist=requires_dist,
             requires_python=requires_python,
@@ -88,9 +90,20 @@ class Metadata:
 
 @dataclass(frozen=True)
 class RecordItem:
+    _SEPARATOR: ClassVar[str] = ","
+    _SHA256_PREFIX: ClassVar[str] = "sha256="
+
     file_path: str
     sha256: str
     size_in_bytes: int
+
+    @classmethod
+    def from_file_path_and_record(cls, file_path: str, record: bytes, /) -> RecordItem:
+        return cls(
+            file_path=file_path,
+            sha256=hashlib.sha256(record).hexdigest(),
+            size_in_bytes=len(record),
+        )
 
     @classmethod
     def parse(
@@ -101,23 +114,31 @@ class RecordItem:
         if _sha256 and _size_in_bytes:
             # Reverse logic of https://github.com/pypa/pip/blob/c9df690f3b5bb285a855953272e6fe24f69aa08a/src/pip/_internal/wheel.py#L71-L84.
             sha256 = urlsafe_b64decode(
-                f"{_sha256[len('sha256=') :]}=".encode("latin1")
+                f"{_sha256[len(cls._SHA256_PREFIX) :]}=".encode("latin1")
             ).hex()
             size_in_bytes = int(_size_in_bytes)
-        else:
-            record_path = f"{dist_info_folder_name}/{_RECORD_FILENAME}"
-            if file_path != record_path:
-                raise RuntimeError(
-                    f"`{record_path}` is the only file that can have empty sha256 and size information but got `{file_path}`."
-                )
 
-            sha256 = hashlib.sha256(record).hexdigest()
-            size_in_bytes = len(record)
+            return cls(
+                file_path=file_path,
+                sha256=sha256,
+                size_in_bytes=size_in_bytes,
+            )
 
-        return RecordItem(
-            file_path=file_path,
-            sha256=sha256,
-            size_in_bytes=size_in_bytes,
+        record_path = f"{dist_info_folder_name}/{_RECORD_FILENAME}"
+        if file_path != record_path:
+            raise RuntimeError(
+                f"`{record_path}` is the only file that can have empty sha256 and size information but got `{file_path}`."
+            )
+
+        return cls.from_file_path_and_record(file_path, record)
+
+    def __str__(self) -> str:
+        return self._SEPARATOR.join(
+            [
+                self.file_path,
+                f"{self._SHA256_PREFIX}{self.sha256}",
+                str(self.size_in_bytes),
+            ]
         )
 
 
@@ -127,7 +148,7 @@ class Record:
 
     @classmethod
     def parse(cls, record: bytes, /, *, dist_info_folder_name: str) -> Record:
-        return Record(
+        return cls(
             items=[
                 RecordItem.parse(
                     line, dist_info_folder_name=dist_info_folder_name, record=record
@@ -136,26 +157,34 @@ class Record:
             ]
         )
 
+    def __str__(self) -> str:
+        return "\n".join([*[str(item) for item in self.items], ""])
+
 
 @dataclass(frozen=True)
 class Wheel:
-    build_string: str | None = None
+    EXPECTED_ENTRIES: ClassVar[Mapping[str, str]] = {
+        "Root-Is-Purelib": "true",
+        "Tag": "py3-none-any",
+        "Wheel-Version": "1.0",
+    }
+
+    _BUILD_KEY: ClassVar[str] = "Build"
+    """See https://peps.python.org/pep-0427/#file-contents."""
+
+    _SEPARATOR: ClassVar[str] = ": "
+
+    build_tag: str | None = None
 
     @classmethod
     def parse(cls, wheel: str, /) -> Wheel:
         entries: dict[str, str] = {}
 
         for line in wheel.splitlines():
-            key, value = line.split(": ", maxsplit=1)
+            key, value = line.split(cls._SEPARATOR, maxsplit=1)
             entries[key] = value
 
-        expected_entries = {
-            "Root-Is-Purelib": "true",
-            "Tag": "py3-none-any",
-            "Wheel-Version": "1.0",
-        }
-
-        for key, expected_value in expected_entries.items():
+        for key, expected_value in cls.EXPECTED_ENTRIES.items():
             actual_value = entries.get(key)
 
             if actual_value != expected_value:
@@ -163,15 +192,26 @@ class Wheel:
                     f"Expected `{key}` to be `{expected_value}` but got `{actual_value}`."
                 )
 
-        build_string = entries.get("Build")
+        build_tag = entries.get(cls._BUILD_KEY)
 
-        return Wheel(build_string=build_string)
+        return cls(build_tag=build_tag)
+
+    def __str__(self) -> str:
+        entries: dict[str, str] = {}
+
+        if self.build_tag:
+            entries[self._BUILD_KEY] = self.build_tag
+
+        entries.update(self.EXPECTED_ENTRIES)
+
+        return "\n".join(
+            [*[f"{key}{self._SEPARATOR}{value}" for key, value in entries.items()], ""]
+        )
 
 
 @dataclass(frozen=True)
 class WheelDistInfo:
     metadata: Metadata
-    module_name: str
     record: Record
     wheel: Wheel
 
@@ -179,12 +219,11 @@ class WheelDistInfo:
     def parse(
         cls, dist_info_files: Mapping[str, bytes], /, *, dist_info_folder_name: str
     ) -> WheelDistInfo:
-        return WheelDistInfo(
+        return cls(
             metadata=Metadata.parse(dist_info_files["METADATA"].decode()),
-            module_name=dist_info_files["top_level.txt"].decode().rstrip(),
             record=Record.parse(
                 dist_info_files[_RECORD_FILENAME],
                 dist_info_folder_name=dist_info_folder_name,
             ),
-            wheel=Wheel.parse(dist_info_files["WHEEL"].decode().rstrip()),
+            wheel=Wheel.parse(dist_info_files[_WHEEL_FILENAME].decode().rstrip()),
         )

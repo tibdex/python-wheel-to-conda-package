@@ -7,12 +7,11 @@ from typing import Optional
 from zipfile import ZipFile
 
 from ._get_conda_info_files import get_conda_info_files
+from ._get_dist_info_folder_name import get_dist_info_folder_name
 from ._get_wheel_folder_path import get_wheel_folder_path
 from ._get_wheel_path_to_conda_path import get_wheel_path_to_conda_path
 from ._read_zip_file import read_zip_file
 from ._wheel_dist_info import WheelDistInfo
-
-_DIST_INFO_FOLDER_TYPE = "dist-info"
 
 
 def python_wheel_to_conda_package(
@@ -51,14 +50,7 @@ def python_wheel_to_conda_package(
     with ZipFile(wheel_path) as zip_file:
         file_paths = zip_file.namelist()
 
-        dist_info_folder_name = get_wheel_folder_path(
-            file_paths, folder_type=_DIST_INFO_FOLDER_TYPE
-        )
-
-        if not dist_info_folder_name:
-            raise RuntimeError(
-                f"Could not find `{_DIST_INFO_FOLDER_TYPE}` folder name."
-            )
+        dist_info_folder_name = get_dist_info_folder_name(file_paths)
 
         data_folder_name = get_wheel_folder_path(file_paths, folder_type="data/data")
 
