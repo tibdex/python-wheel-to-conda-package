@@ -41,11 +41,9 @@ def wheel_path_fixture(
     rmtree(dist_directory, ignore_errors=True)
     dist_directory.mkdir()
 
-    result = make_wheel_in(
+    wheel_path: Path = make_wheel_in(
         test_lib_directory / _PYPROJECT_TOML_FILENAME, wheel_directory=dist_directory
-    )
-
-    wheel_path: Path = result.file
+    ).file
 
     add_build_tag_to_wheel(wheel_path, f"{build_number}_{build_string}")
 

@@ -16,7 +16,7 @@
     "python.linting.mypyCategorySeverity.note": "Error",
     "python.linting.mypyEnabled": true,
     "python.testing.pytestArgs": [
-        "-s"
+        "--capture=no"
     ],
     "python.testing.pytestEnabled": true,
     "python.testing.unittestEnabled": false,
