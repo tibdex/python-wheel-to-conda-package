@@ -1,0 +1,22 @@
+[project]
+authors = [
+    {name=  "test-author", email= "test@email.com"},
+]
+classifiers = [
+    "Private :: Do Not Upload",
+]
+dependencies = [
+    "pandas >=1.5"
+]
+description = "Test library"
+name = "test-lib"
+packages = [{include = "test_lib"}]
+requires-python = ">=3.9"
+version = "0.4.2.dev0"
+
+[build-system]
+requires = ["flit_core"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.external-data]
+directory = "data"

@@ -1,17 +1,16 @@
 import json
 from collections.abc import Mapping
 from datetime import timedelta
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from shutil import copyfile
 from subprocess import check_output, run
 from textwrap import dedent
 from typing import Any
 
 import pytest
+from flit_core.config import LoadedConfig
 
 from python_wheel_to_conda_package import python_wheel_to_conda_package
-
-from ._get_module_name import get_module_name
 
 
 @pytest.fixture(name="conda_package_path", scope="module")
@@ -68,8 +67,8 @@ def _get_installed_conda_packages() -> dict[str, str]:
 
 def _install_conda_package(
     package_name: str, /, *, local_conda_channel_path: Path
-) -> None:
-    run(
+) -> str:
+    return check_output(
         [
             "conda",
             "install",
@@ -78,17 +77,18 @@ def _install_conda_package(
             "--yes",
             package_name,
         ],
-        check=True,
+        text=True,
     )
 
 
 @pytest.fixture(autouse=True, scope="module")
 def conda_package_installed_fixture(
     additional_requirements: Mapping[str, str],
+    build_string: str,
     indexed_local_conda_channel_path: Path,
-    setup_args: Mapping[str, Any],
+    pyproject: LoadedConfig,
 ) -> None:
-    package_name = setup_args["name"]
+    package_name = pyproject.metadata["name"]
 
     installed_packages = _get_installed_conda_packages()
 
@@ -97,9 +97,10 @@ def conda_package_installed_fixture(
     for requirement_name in additional_requirements:
         assert requirement_name not in installed_packages
 
-    _install_conda_package(
+    output = _install_conda_package(
         package_name, local_conda_channel_path=indexed_local_conda_channel_path
     )
+    assert build_string in output
 
 
 @pytest.fixture(name="installed_conda_packages", scope="module")
@@ -109,9 +110,9 @@ def installed_conda_packages_fixture() -> Mapping[str, str]:
 
 def test_conda_package_installation(
     installed_conda_packages: Mapping[str, str],
-    setup_args: Mapping[str, Any],
+    pyproject: LoadedConfig,
 ) -> None:
-    assert setup_args["name"] in installed_conda_packages
+    assert pyproject.metadata["name"] in installed_conda_packages
 
 
 def test_additional_requirements_installation(
@@ -130,25 +131,20 @@ def conda_env_directory_fixture() -> Path:
     return Path(str(active_prefix or info["default_prefix"]))
 
 
-def test_data_files(
-    conda_env_directory: Path, setup_args: Mapping[str, Any], test_lib_directory: Path
-) -> None:
-    for path_in_package, local_file_relative_paths in setup_args["data_files"]:
-        directory_inside_conda_env = conda_env_directory / PurePosixPath(
-            path_in_package
+def test_data_files(conda_env_directory: Path, pyproject: LoadedConfig) -> None:
+    data_directory: Path = pyproject.data_directory
+    for data_file_path in data_directory.glob("**/*"):
+        if data_file_path.is_dir():
+            continue
+
+        data_file_path_inside_conda_env = (
+            conda_env_directory / data_file_path.relative_to(data_directory)
         )
-        for local_file_relative_path in local_file_relative_paths:
-            local_file_path = test_lib_directory / PurePosixPath(
-                local_file_relative_path
-            )
-            expected_content = local_file_path.read_bytes()
 
-            assert len(expected_content) > 0
-
-            path_inside_conda_env = directory_inside_conda_env / local_file_path.name
-            content = path_inside_conda_env.read_bytes()
-
-            assert content == expected_content
+        expected_content = data_file_path.read_bytes()
+        assert len(expected_content) > 0
+        content = data_file_path_inside_conda_env.read_bytes()
+        assert content == expected_content
 
 
 def _run_python_module_inside_conda_env(
@@ -161,9 +157,9 @@ def _run_python_module_inside_conda_env(
     )
 
 
-def test_module_execution(setup_args: Mapping[str, Any]) -> None:
+def test_module_execution(pyproject: LoadedConfig) -> None:
     output = _run_python_module_inside_conda_env(
-        get_module_name(setup_args["name"]), timeout=timedelta(seconds=10)
+        pyproject.metadata["name"].replace("-", "_"), timeout=timedelta(seconds=10)
     )
 
     assert (
