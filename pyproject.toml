@@ -1,3 +1,17 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = [
+  "flit_core.*",
+  "pandas"
+]
+ignore_missing_imports = true
+
 [tool.poetry]
 authors = ["Thibault Derousseaux <tibdex@gmail.com>"]
 classifiers = [
@@ -29,19 +43,8 @@ ruff = "*"
 [tool.poetry.scripts]
 python-wheel-to-conda-package = 'python_wheel_to_conda_package.__main__:main'
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.mypy]
-strict = true
-
-[[tool.mypy.overrides]]
-module = [
-  "flit_core.*",
-  "pandas"
-]
-ignore_missing_imports = true
+[tool.pytest.ini_options]
+filterwarnings = ["error"]
 
 [tool.ruff]
 ignore = [

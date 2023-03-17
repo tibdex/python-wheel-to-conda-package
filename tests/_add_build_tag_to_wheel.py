@@ -1,6 +1,9 @@
+import re
 from dataclasses import replace
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
+
+import pytest
 
 from python_wheel_to_conda_package._get_dist_info_folder_name import (
     get_dist_info_folder_name,
@@ -16,7 +19,9 @@ from python_wheel_to_conda_package._wheel_dist_info import (
 
 
 def add_build_tag_to_wheel(wheel_path: Path, build_tag: str, /) -> None:
-    with ZipFile(wheel_path, mode="a", compression=ZIP_DEFLATED) as zip_file:
+    with pytest.warns(UserWarning, match=re.escape("Duplicate name")), ZipFile(
+        wheel_path, mode="a", compression=ZIP_DEFLATED
+    ) as zip_file:
         file_paths = zip_file.namelist()
 
         dist_info_folder_name = get_dist_info_folder_name(file_paths)
