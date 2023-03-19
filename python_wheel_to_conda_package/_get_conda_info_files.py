@@ -2,63 +2,71 @@ from __future__ import annotations
 
 import json
 import re
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable
 from typing import Any
 
-from ._get_conda_version_specification import get_conda_version_specification
+from ._get_conda_package_match_specification import (
+    get_conda_package_match_specification,
+)
 from ._get_wheel_path_to_conda_path import get_wheel_path_to_conda_path
 from ._wheel_dist_info import RecordItem, WheelDistInfo
 
 _JSON_INDENT = 2
 
 
-def _get_index_json(
-    *,
-    additional_requirements: Mapping[str, str],
-    timestamp: int,
-    wheel_dist_info: WheelDistInfo,
-) -> str:
+def _get_build_number_and_string(build_tag: str | None, /) -> tuple[int, str]:
     build_number: int = 0
     build_string: str = "py_0"
 
-    if wheel_dist_info.wheel.build_tag:
+    if build_tag:
         match = re.match(
             r"^(?P<build_number>\d+)_(?P<build_string>[a-z0-9]+)",
-            wheel_dist_info.wheel.build_tag,
+            build_tag,
         )
 
         if match:
-            build_number = int(match.group("build_number"))
+            int(match.group("build_number"))
             build_string = match.group("build_string")
         else:
-            build_string = wheel_dist_info.wheel.build_tag
+            build_string = build_tag
 
-    requirements = {"python": wheel_dist_info.metadata.requires_python}
+    forbidden_character = "-"
+    if forbidden_character in build_string:
+        # See https://docs.conda.io/projects/conda-build/en/latest/resources/define-metadata.html#build-number-and-string.
+        raise ValueError(
+            f"The build string cannot contain `{forbidden_character}`, got `{build_string}`."
+        )
 
-    for wheel_requirement in wheel_dist_info.metadata.requires_dist:
-        package_name = wheel_requirement
-        conda_version_specification = ""
+    return build_number, build_string
 
-        if " " in wheel_requirement:
-            package_name, wheel_version_declaration = wheel_requirement.split(
-                " ", maxsplit=1
+
+def _get_index_json(
+    *,
+    timestamp: int,
+    wheel_dist_info: WheelDistInfo,
+) -> str:
+    build_number, build_string = _get_build_number_and_string(
+        wheel_dist_info.wheel.build_tag
+    )
+
+    requirements = {
+        (
+            conda_package_match_specification := get_conda_package_match_specification(
+                python_dependency_specification
             )
-            conda_version_specification = get_conda_version_specification(
-                wheel_version_declaration
-            )
-
-        requirements[package_name] = conda_version_specification
-
-    requirements |= additional_requirements
+        ).package_name: conda_package_match_specification.version
+        for python_dependency_specification in [
+            f"python {wheel_dist_info.metadata.requires_python}".rstrip(),
+            *wheel_dist_info.metadata.requires_dist,
+        ]
+    }
 
     index: dict[str, Any] = {
         "arch": None,
         "build": build_string,
         "build_number": build_number,
         "depends": [
-            f"{package_name} {version_specification}"
-            if version_specification
-            else package_name
+            f"{package_name} {version_specification}".rstrip()
             for package_name, version_specification in requirements.items()
         ],
         "name": wheel_dist_info.metadata.package_name,
@@ -98,14 +106,12 @@ def _get_paths_json(
 
 def get_conda_info_files(
     *,
-    additional_requirements: Mapping[str, str],
     data_folder_name: str | None = None,
     timestamp: int,
     wheel_dist_info: WheelDistInfo,
 ) -> dict[str, str]:
     return {
         "index.json": _get_index_json(
-            additional_requirements=additional_requirements,
             timestamp=timestamp,
             wheel_dist_info=wheel_dist_info,
         ),

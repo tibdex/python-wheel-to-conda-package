@@ -13,16 +13,12 @@ def main() -> None:
         description=docstring.splitlines()[0],
     )
     parser.add_argument("wheel_path", type=Path)
-    parser.add_argument("-r", "--additional-requirements", default=[], nargs="*")
     parser.add_argument("-o", "--output-directory", type=Path)
 
     args = parser.parse_args()
 
     conda_package_path = python_wheel_to_conda_package(
         args.wheel_path,
-        additional_requirements=dict(
-            requirement.split(" ") for requirement in args.additional_requirements
-        ),
         output_directory=args.output_directory,
     )
 

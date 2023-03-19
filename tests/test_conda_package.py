@@ -15,14 +15,12 @@ from python_wheel_to_conda_package import python_wheel_to_conda_package
 
 @pytest.fixture(name="conda_package_path", scope="module")
 def conda_package_path_fixture(
-    additional_requirements: Mapping[str, str],
     tmp_path_factory: pytest.TempPathFactory,
     wheel_path: Path,
 ) -> Path:
     package_directory = tmp_path_factory.mktemp("conda-package")
     return python_wheel_to_conda_package(
         wheel_path,
-        additional_requirements=additional_requirements,
         output_directory=package_directory,
     )
 
@@ -42,11 +40,6 @@ def indexed_local_conda_channel_path_fixture(
     )
 
     return channel_directory
-
-
-@pytest.fixture(name="additional_requirements", scope="module")
-def additional_requirements_fixture() -> Mapping[str, str]:
-    return {"graphviz": "2.50.0"}
 
 
 def _get_installed_conda_packages() -> dict[str, str]:
@@ -83,7 +76,6 @@ def _install_conda_package(
 
 @pytest.fixture(autouse=True, scope="module")
 def conda_package_installed_fixture(
-    additional_requirements: Mapping[str, str],
     build_string: str,
     indexed_local_conda_channel_path: Path,
     pyproject: LoadedConfig,
@@ -94,8 +86,6 @@ def conda_package_installed_fixture(
 
     # Check that the Conda environment does not have these packages before the upcoming installation.
     assert package_name not in installed_packages
-    for requirement_name in additional_requirements:
-        assert requirement_name not in installed_packages
 
     output = _install_conda_package(
         package_name, local_conda_channel_path=indexed_local_conda_channel_path
@@ -113,14 +103,6 @@ def test_conda_package_installation(
     pyproject: LoadedConfig,
 ) -> None:
     assert pyproject.metadata["name"] in installed_conda_packages
-
-
-def test_additional_requirements_installation(
-    additional_requirements: Mapping[str, str],
-    installed_conda_packages: Mapping[str, str],
-) -> None:
-    for requirement_name, required_version in additional_requirements.items():
-        assert installed_conda_packages[requirement_name] == required_version
 
 
 @pytest.fixture(name="conda_env_directory", scope="module")

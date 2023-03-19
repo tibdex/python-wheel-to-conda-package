@@ -1,6 +1,5 @@
 import json
 import tarfile
-from collections.abc import Mapping
 from io import BytesIO
 from pathlib import Path
 from typing import Optional
@@ -18,24 +17,18 @@ def python_wheel_to_conda_package(
     wheel_path: Path,
     /,
     *,
-    additional_requirements: Optional[Mapping[str, str]] = None,
     output_directory: Optional[Path] = None,
 ) -> Path:
     """Convert a Pure-Python Wheel to a noarch Conda package.
 
     Args:
         wheel_path: The path to the Wheel file to convert.
-        additional_requirements: Mapping of package name to their version specification.
-            These packages will be added to the Conda package's requirements.
         output_directory: The directory in which the Conda package will be created.
             If ``None``, the directory of the input Wheel is used.
 
     Returns:
         The path of the created Conda package.
     """
-    if additional_requirements is None:
-        additional_requirements = {}
-
     if not wheel_path.is_file():
         raise ValueError(f"`{wheel_path}` does not point to an existing path.")
 
@@ -64,7 +57,6 @@ def python_wheel_to_conda_package(
             dist_info_files, dist_info_folder_name=dist_info_folder_name
         )
         conda_info_files = get_conda_info_files(
-            additional_requirements=additional_requirements,
             data_folder_name=data_folder_name,
             timestamp=timestamp,
             wheel_dist_info=wheel_dist_info,
