@@ -46,7 +46,7 @@ class Metadata:
         metadata_version: str | None = None
         package_name: str | None = None
         requires_dist: list[str] = []
-        requires_python: str | None = None
+        requires_python: str = ""
         version: str | None = None
 
         metadata_version_key = "Metadata-Version"
@@ -73,9 +73,6 @@ class Metadata:
 
         if not package_name:
             raise ValueError("Missing package name.")
-
-        if not requires_python:
-            raise ValueError("Missing Python requirement")
 
         if not version:
             raise ValueError("Missing version.")

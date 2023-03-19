@@ -31,6 +31,7 @@ repository = "https://github.com/tibdex/python-wheel-to-conda-package"
 version = "0.3.0"
 
 [tool.poetry.dependencies]
+packaging = ">=23.0"
 python = ">=3.9"
 
 [tool.poetry.group.dev.dependencies]
@@ -70,6 +71,7 @@ ignore = [
   "S101", # `assert` is useful when used correctly (https://realpython.com/python-assert-statement).
   "TCH", # Circular dependencies of any kind must be avoided.
   "TRY003", # Not worth the annoyance.
+  "TRY301", # Not worth the annoyance.
 ]
 target-version = "py39"
 select = ["ALL"]
