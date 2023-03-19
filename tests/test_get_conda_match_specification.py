@@ -84,4 +84,5 @@ def test_get_conda_package_match_specification(
         assert conda_version_specification == expected_conda_package_match_specification
 
     if expected_error_pattern:
+        assert exc_info
         assert re.search(expected_error_pattern, str(exc_info.value.__cause__))
