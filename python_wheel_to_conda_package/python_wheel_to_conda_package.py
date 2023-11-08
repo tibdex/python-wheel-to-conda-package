@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import json
 import tarfile
 from io import BytesIO
 from pathlib import Path
-from typing import Optional
 from zipfile import ZipFile
 
 from ._get_conda_info_files import get_conda_info_files
@@ -17,7 +18,7 @@ def python_wheel_to_conda_package(
     wheel_path: Path,
     /,
     *,
-    output_directory: Optional[Path] = None,
+    output_directory: Path | None = None,
 ) -> Path:
     """Convert a Pure-Python Wheel to a noarch Conda package.
 

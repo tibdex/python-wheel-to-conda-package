@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - run: poetry lock --check
+      - run: poetry check --lock
       - run: poetry run ruff format --check .
       - run: poetry run ruff check .
       - run: poetry run mypy --show-error-codes --package python_wheel_to_conda_package --package tests

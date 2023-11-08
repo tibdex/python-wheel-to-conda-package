@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import re
 from contextlib import nullcontext
-from typing import Optional
 
 import pytest
 
@@ -66,10 +67,8 @@ from python_wheel_to_conda_package._get_conda_package_match_specification import
 )
 def test_get_conda_package_match_specification(
     python_dependency_specification: str,
-    expected_conda_package_match_specification: Optional[
-        CondaPackageMatchSpecification
-    ],
-    expected_error_pattern: Optional[str],
+    expected_conda_package_match_specification: CondaPackageMatchSpecification | None,
+    expected_error_pattern: str | None,
 ) -> None:
     context_manager = (
         pytest.raises(

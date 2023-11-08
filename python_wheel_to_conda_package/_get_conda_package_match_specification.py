@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Optional
 
 from packaging.markers import Marker
 from packaging.requirements import Requirement
@@ -27,7 +28,7 @@ def is_extra_marker(marker: Marker, /) -> bool:
 
 def get_conda_package_match_specification(
     python_dependency_specification: str, /
-) -> Optional[CondaPackageMatchSpecification]:
+) -> CondaPackageMatchSpecification | None:
     try:
         requirement = Requirement(python_dependency_specification)
 
