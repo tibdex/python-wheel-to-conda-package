@@ -1,11 +1,12 @@
+from __future__ import annotations
+
 import re
 from collections.abc import Iterable
-from typing import Optional
 
 
 def get_wheel_folder_path(
     file_paths: Iterable[str], /, *, folder_type: str
-) -> Optional[str]:
+) -> str | None:
     for file_path in file_paths:
         match = re.match(
             f"^(?P<folder_path>(?P<module_name>[^-]+)-(?P<version>([^.]+\\.)+){re.escape(folder_type)})\\/",

@@ -1,8 +1,8 @@
-from typing import Optional
+from __future__ import annotations
 
 
 def get_wheel_path_to_conda_path(
-    file_path: str, /, *, data_folder_name: Optional[str]
+    file_path: str, /, *, data_folder_name: str | None
 ) -> str:
     data_prefix = f"{data_folder_name}/"
     return (

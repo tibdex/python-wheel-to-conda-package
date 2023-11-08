@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from base64 import urlsafe_b64decode
 from collections.abc import Mapping, Sequence
+from contextlib import suppress
 from dataclasses import dataclass
 from typing import ClassVar
 
@@ -34,11 +35,11 @@ class Metadata:
 
         empty_line_index = len(lines)
 
-        try:
-            empty_line_index = lines.index("")
-        except ValueError:
+        with suppress(
             # No empty line which means there are no long description and all the lines follow the `name: value` format.
-            ...
+            ValueError
+        ):
+            empty_line_index = lines.index("")
 
         # Ignore the long description which is separated by the `key: value` lines by an empty line.
         lines = lines[:empty_line_index]
@@ -64,9 +65,6 @@ class Metadata:
                 requires_python = value
             elif key == "Requires-Dist":
                 requires_dist.append(value)
-            elif key == "Provides-Extra":
-                # The extra requirements in a Python Wheel do not have an equivalent in a Conda package.
-                break
 
         if not metadata_version:
             raise ValueError(f"Missing `{metadata_version_key}` metadata.")

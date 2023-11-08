@@ -6,10 +6,7 @@ build-backend = "poetry.core.masonry.api"
 strict = true
 
 [[tool.mypy.overrides]]
-module = [
-  "flit_core.*",
-  "pandas"
-]
+module = ["flit_core.*", "pandas"]
 ignore_missing_imports = true
 
 [tool.poetry]
@@ -19,23 +16,22 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Topic :: Software Development :: Build Tools",
-  "Typing :: Typed"
+  "Typing :: Typed",
 ]
 description = "Convert a Pure-Python Wheel to a noarch Conda package"
 keywords = ["conda", "conda-package", "python-wheel", "wheel"]
 license = "MIT"
 name = "python-wheel-to-conda-package"
-packages = [{include = "python_wheel_to_conda_package"}]
+packages = [{ include = "python_wheel_to_conda_package" }]
 readme = "README.md"
 repository = "https://github.com/tibdex/python-wheel-to-conda-package"
-version = "0.3.0"
+version = "0.4.0"
 
 [tool.poetry.dependencies]
 packaging = ">=23.0"
 python = ">=3.9"
 
 [tool.poetry.group.dev.dependencies]
-black = "*"
 mypy = "*"
 flit-core = "*"
 pytest = "*"
@@ -52,11 +48,11 @@ ignore = [
   # The type checkers can infer the following `ANN` rules.
   "ANN101",
   "ANN102",
-  "C901", # Complex functions can be more legible than many small ones.
-  "COM812", # Covered by Black.
-  "E501", # Covered by Black.
-  "EM101", # Not worth the annoyance.
-  "EM102", # Not worth the annoyance.
+  "C901",   # Complex functions can be more legible than many small ones.
+  "COM812", # Covered by `ruff format`.
+  "E501",   # Covered by `ruff format`.
+  "EM101",  # Not worth the annoyance.
+  "EM102",  # Not worth the annoyance.
   # The following `D` rules are unnecessary.
   "D100",
   "D101",
@@ -65,20 +61,22 @@ ignore = [
   "D104",
   "D105",
   "D106",
-  "F403", # Useful to reexport all public symbols from an imported modules in an `__init__.py`.
+  "F403",    # Useful to reexport all public symbols from an imported modules in an `__init__.py`.
+  "ISC001",  # Conflicts with `ruff format`.
   "PLR0912", # Complex functions can be more legible than many small ones.
-  "PT004", # Useless distinction.
-  "S101", # `assert` is useful when used correctly (https://realpython.com/python-assert-statement).
-  "TCH", # Circular dependencies of any kind must be avoided.
-  "TRY003", # Not worth the annoyance.
-  "TRY301", # Not worth the annoyance.
+  "PT004",   # Useless distinction.
+  "S101",    # `assert` is useful when used correctly (https://realpython.com/python-assert-statement).
+  "TCH",     # Circular dependencies of any kind must be avoided.
+  "TRY003",  # Not worth the annoyance.
+  "TRY301",  # Not worth the annoyance.
 ]
 target-version = "py39"
 select = ["ALL"]
 
 [tool.ruff.per-file-ignores]
+"tests/**/*" = ["S603", "S607"]
 "__main__.py" = [
-  "T201" # It's OK to use print in scripts.
+  "T201", # It's OK to use print in scripts.
 ]
 
 [tool.ruff.pydocstyle]

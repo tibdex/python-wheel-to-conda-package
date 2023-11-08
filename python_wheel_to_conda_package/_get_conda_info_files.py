@@ -49,17 +49,19 @@ def _get_index_json(
         wheel_dist_info.wheel.build_tag
     )
 
-    requirements = {
-        (
-            conda_package_match_specification := get_conda_package_match_specification(
-                python_dependency_specification
-            )
-        ).package_name: conda_package_match_specification.version
-        for python_dependency_specification in [
-            f"python {wheel_dist_info.metadata.requires_python}".rstrip(),
-            *wheel_dist_info.metadata.requires_dist,
-        ]
-    }
+    requirements: dict[str, str] = {}
+
+    for python_dependency_specification in [
+        f"python {wheel_dist_info.metadata.requires_python}".rstrip(),
+        *wheel_dist_info.metadata.requires_dist,
+    ]:
+        conda_package_match_specification = get_conda_package_match_specification(
+            python_dependency_specification
+        )
+        if conda_package_match_specification:
+            requirements[
+                conda_package_match_specification.package_name
+            ] = conda_package_match_specification.version
 
     index: dict[str, Any] = {
         "arch": None,
