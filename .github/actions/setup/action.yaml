@@ -9,5 +9,5 @@ runs:
       with:
         cache: poetry
         python-version: "3.9"
-    - run: poetry install --no-interaction
+    - run: poetry install --no-interaction --sync
       shell: bash

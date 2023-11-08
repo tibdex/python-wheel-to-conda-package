@@ -32,7 +32,6 @@ packaging = ">=23.0"
 python = ">=3.9"
 
 [tool.poetry.group.dev.dependencies]
-black = "*"
 mypy = "*"
 flit-core = "*"
 pytest = "*"
