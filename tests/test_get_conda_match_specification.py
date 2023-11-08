@@ -30,32 +30,37 @@ from python_wheel_to_conda_package._get_conda_package_match_specification import
         (
             "requests[security, socks]",
             None,
-            re.escape("Extras are not supported."),
+            re.escape("Extra not supported."),
         ),
         (
             "requests; extra == 'http'",
             None,
-            re.escape("Markers are not supported."),
+            None,
+        ),
+        (
+            "requests >=2.31.0 ; extra == 'http'",
+            None,
+            None,
         ),
         (
             "requests; python_version > '3.7'",
             None,
-            re.escape("Markers are not supported."),
+            re.escape("Marker not supported."),
         ),
         (
             "local-lib @ file:///local-lib",
             None,
-            re.escape("URLs are not supported."),
+            re.escape("URL not supported."),
         ),
         (
             "pip @ https://github.com/pypa/pip/archive/1.3.1.zip",
             None,
-            re.escape("URLs are not supported."),
+            re.escape("URL not supported."),
         ),
         (
             "poetry @ git+https://github.com/python-poetry/poetry.git",
             None,
-            re.escape("URLs are not supported."),
+            re.escape("URL not supported."),
         ),
     ],
 )
@@ -67,14 +72,14 @@ def test_get_conda_package_match_specification(
     expected_error_pattern: Optional[str],
 ) -> None:
     context_manager = (
-        nullcontext()
-        if expected_conda_package_match_specification
-        else pytest.raises(
+        pytest.raises(
             Exception,
             match=re.escape(
                 f"Could not convert `{python_dependency_specification}` to Conda version specification."
             ),
         )
+        if expected_error_pattern
+        else nullcontext()
     )
 
     with context_manager as exc_info:

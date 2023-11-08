@@ -8,10 +8,10 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
       - run: poetry lock --check
-      - run: poetry run black --check .
+      - run: poetry run ruff format --check .
       - run: poetry run ruff check .
       - run: poetry run mypy --show-error-codes --package python_wheel_to_conda_package --package tests
       - uses: conda-incubator/setup-miniconda@v2

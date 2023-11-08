@@ -64,9 +64,6 @@ class Metadata:
                 requires_python = value
             elif key == "Requires-Dist":
                 requires_dist.append(value)
-            elif key == "Provides-Extra":
-                # The extra requirements in a Python Wheel do not have an equivalent in a Conda package.
-                break
 
         if not metadata_version:
             raise ValueError(f"Missing `{metadata_version_key}` metadata.")

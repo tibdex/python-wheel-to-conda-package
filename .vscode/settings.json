@@ -4,17 +4,14 @@
             "source.fixAll": true,
             "source.organizeImports": true
         },
+        "editor.defaultFormatter": "charliermarsh.ruff",
         "editor.formatOnType": true
     },
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
     "python.analysis.autoImportCompletions": true,
-    "python.analysis.autoImportUserSymbols": true,
-    "python.formatting.provider": "black",
     "python.languageServer": "Pylance",
-    "python.linting.mypyCategorySeverity.note": "Error",
-    "python.linting.mypyEnabled": true,
     "python.testing.pytestArgs": [
         "--capture=no"
     ],
