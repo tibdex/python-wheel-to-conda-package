@@ -9,5 +9,5 @@ runs:
         version: "0.4.20"
     - run: uv python install 3.10
       shell: bash
-    - run: un sync --locked
+    - run: uv sync --locked
       shell: bash
