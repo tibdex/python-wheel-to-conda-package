@@ -58,11 +58,6 @@ from python_wheel_to_conda_package._get_conda_package_match_specification import
             None,
             re.escape("URL not supported."),
         ),
-        (
-            "poetry @ git+https://github.com/python-poetry/poetry.git",
-            None,
-            re.escape("URL not supported."),
-        ),
     ],
 )
 def test_get_conda_package_match_specification(

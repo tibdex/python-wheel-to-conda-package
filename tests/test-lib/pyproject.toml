@@ -1,21 +1,18 @@
 [build-system]
-requires = ["flit_core"]
-build-backend = "flit_core.buildapi"
+build-backend = "hatchling.build"
+requires = [
+    # Keep in sync with version `pyproject.toml`.
+    "hatchling ==1.25.0",
+]
 
 [project]
-authors = [
-    {name=  "test-author", email= "test@email.com"},
-]
-classifiers = [
-    "Private :: Do Not Upload",
-]
-dependencies = [
-    "pandas >=1.5"
-]
+authors = [{ name = "test-author", email = "test@email.com" }]
+classifiers = ["Private :: Do Not Upload"]
+dependencies = ["pandas >=1.5"]
 description = "Test library"
 name = "test-lib"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 version = "0.4.2.dev0"
 
-[tool.flit.external-data]
-directory = "data"
+[tool.hatch.build.targets.wheel.shared-data]
+data = "share/test-lib-external-data"

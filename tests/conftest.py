@@ -2,22 +2,16 @@ from pathlib import Path
 from shutil import rmtree
 
 import pytest
-from flit_core.config import LoadedConfig, read_flit_config
-from flit_core.wheel import make_wheel_in
+from hatchling.builders.wheel import WheelBuilder
+from hatchling.metadata.core import ProjectMetadata
+from hatchling.plugin.manager import PluginManagerBound
 
 from ._add_build_tag_to_wheel import add_build_tag_to_wheel
 
-_PYPROJECT_TOML_FILENAME = "pyproject.toml"
 
-
-@pytest.fixture(name="test_lib_directory", scope="session")
-def test_lib_directory_fixture() -> Path:
-    return Path(__file__).parent / "test-lib"
-
-
-@pytest.fixture(name="pyproject", scope="session")
-def pyproject_fixture(test_lib_directory: Path) -> LoadedConfig:
-    return read_flit_config(test_lib_directory / _PYPROJECT_TOML_FILENAME)
+@pytest.fixture(name="project_metadata", scope="session")
+def pyproject_fixture() -> ProjectMetadata[PluginManagerBound]:
+    return ProjectMetadata(str(Path(__file__).parent / "test-lib"), None)
 
 
 @pytest.fixture(name="build_number", scope="session")
@@ -34,16 +28,14 @@ def build_string_fixture() -> str:
 def wheel_path_fixture(
     build_number: int,
     build_string: str,
-    test_lib_directory: Path,
+    project_metadata: ProjectMetadata[PluginManagerBound],
 ) -> Path:
-    dist_directory = test_lib_directory / "dist"
+    dist_directory = Path(project_metadata.root) / "dist"
 
     rmtree(dist_directory, ignore_errors=True)
     dist_directory.mkdir()
 
-    wheel_path: Path = make_wheel_in(
-        test_lib_directory / _PYPROJECT_TOML_FILENAME, wheel_directory=dist_directory
-    ).file
+    wheel_path: Path = Path(next(WheelBuilder(project_metadata.root).build()))
 
     add_build_tag_to_wheel(wheel_path, f"{build_number}_{build_string}")
 

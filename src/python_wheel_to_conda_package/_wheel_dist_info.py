@@ -12,14 +12,14 @@ _WHEEL_FILENAME = "WHEEL"
 
 
 def _validate_metadata_version(version: str, /) -> str:
-    expected_version = "2.1"
+    expected_major_version = 2
 
-    if version == expected_version:
-        return version
+    if not version.startswith(f"{expected_major_version}."):
+        raise ValueError(
+            f"Expected metadata version's major number to be `{expected_major_version}` but got `{version}`."
+        )
 
-    raise ValueError(
-        f"Expected metadata version to be `{expected_version}` but got `{version}`."
-    )
+    return version
 
 
 @dataclass(frozen=True)

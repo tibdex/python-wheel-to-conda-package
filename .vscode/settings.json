@@ -1,11 +1,14 @@
 {
     "[python]": {
         "editor.codeActionsOnSave": {
-            "source.fixAll": true,
-            "source.organizeImports": true
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
         },
         "editor.defaultFormatter": "charliermarsh.ruff",
         "editor.formatOnType": true
+    },
+    "[toml]": {
+        "editor.defaultFormatter": "tamasfe.even-better-toml"
     },
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,

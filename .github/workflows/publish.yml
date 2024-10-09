@@ -12,6 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - run: poetry build --format=wheel
+      - run: uv build --wheel
       - run: poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
       - run: poetry publish
