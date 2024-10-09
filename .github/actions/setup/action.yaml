@@ -7,7 +7,7 @@ runs:
       with:
         enable-cache: true
         version: "0.4.20"
-    - run: uv python install 3.10
+    - run: uv python install 3.10.15
       shell: bash
     - run: uv sync --locked
       shell: bash

@@ -59,9 +59,9 @@ def _get_index_json(
             python_dependency_specification
         )
         if conda_package_match_specification:
-            requirements[
-                conda_package_match_specification.package_name
-            ] = conda_package_match_specification.version
+            requirements[conda_package_match_specification.package_name] = (
+                conda_package_match_specification.version
+            )
 
     index: dict[str, Any] = {
         "arch": None,

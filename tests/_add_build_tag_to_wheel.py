@@ -19,9 +19,10 @@ from python_wheel_to_conda_package._wheel_dist_info import (
 
 
 def add_build_tag_to_wheel(wheel_path: Path, build_tag: str, /) -> None:
-    with pytest.warns(UserWarning, match=re.escape("Duplicate name")), ZipFile(
-        wheel_path, mode="a", compression=ZIP_DEFLATED
-    ) as zip_file:
+    with (
+        pytest.warns(UserWarning, match=re.escape("Duplicate name")),
+        ZipFile(wheel_path, mode="a", compression=ZIP_DEFLATED) as zip_file,
+    ):
         file_paths = zip_file.namelist()
 
         dist_info_folder_name = get_dist_info_folder_name(file_paths)
