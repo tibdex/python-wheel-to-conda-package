@@ -20,12 +20,12 @@ from python_wheel_to_conda_package._get_conda_package_match_specification import
     [
         (
             "python",
-            CondaPackageMatchSpecification("python", ""),
+            CondaPackageMatchSpecification(package_name="python", version=""),
             None,
         ),
         (
             "python >=3.9",
-            CondaPackageMatchSpecification("python", ">=3.9"),
+            CondaPackageMatchSpecification(package_name="python", version=">=3.9"),
             None,
         ),
         (
@@ -55,11 +55,6 @@ from python_wheel_to_conda_package._get_conda_package_match_specification import
         ),
         (
             "pip @ https://github.com/pypa/pip/archive/1.3.1.zip",
-            None,
-            re.escape("URL not supported."),
-        ),
-        (
-            "poetry @ git+https://github.com/python-poetry/poetry.git",
             None,
             re.escape("URL not supported."),
         ),

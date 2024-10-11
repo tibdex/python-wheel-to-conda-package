@@ -1,16 +1,12 @@
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+build-backend = "hatchling.build"
+requires = [
+  # Keep in sync with version in `tool.uv.dev-dependencies` and in `tests/test-lib/pyproject.toml`.
+  "hatchling ==1.25.0",
+]
 
-[tool.mypy]
-strict = true
-
-[[tool.mypy.overrides]]
-module = ["flit_core.*", "pandas"]
-ignore_missing_imports = true
-
-[tool.poetry]
-authors = ["Thibault Derousseaux <tibdex@gmail.com>"]
+[project]
+authors = [{ email = "tibdex@gmail.com", name = "Thibault Derousseaux" }]
 classifiers = [
   "Development Status :: 4 - Beta",
   "License :: OSI Approved :: MIT License",
@@ -18,39 +14,41 @@ classifiers = [
   "Topic :: Software Development :: Build Tools",
   "Typing :: Typed",
 ]
+dependencies = ["packaging >=23.0"]
 description = "Convert a Pure-Python Wheel to a noarch Conda package"
 keywords = ["conda", "conda-package", "python-wheel", "wheel"]
-license = "MIT"
 name = "python-wheel-to-conda-package"
-packages = [{ include = "python_wheel_to_conda_package" }]
 readme = "README.md"
-repository = "https://github.com/tibdex/python-wheel-to-conda-package"
-version = "0.4.0"
+requires-python = ">=3.10"
+version = "0.4.1"
 
-[tool.poetry.dependencies]
-packaging = ">=23.0"
-python = ">=3.9"
+[project.scripts]
+python-wheel-to-conda-package = "python_wheel_to_conda_package.__main__:main"
 
-[tool.poetry.group.dev.dependencies]
-mypy = "*"
-flit-core = "*"
-pytest = "*"
-ruff = "*"
+[project.urls]
+Repository = "https://github.com/tibdex/python-wheel-to-conda-package"
 
-[tool.poetry.scripts]
-python-wheel-to-conda-package = 'python_wheel_to_conda_package.__main__:main'
+
+[tool.mypy]
+# Remove once https://github.com/python/mypy/issues/10428 is fixed.
+files = "src,tests"
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["pandas"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 filterwarnings = ["error"]
 
-[tool.ruff]
+[tool.ruff.lint]
 ignore = [
   # The type checkers can infer the following `ANN` rules.
   "ANN101",
   "ANN102",
   "C901",   # Complex functions can be more legible than many small ones.
-  "COM812", # Covered by `ruff format`.
-  "E501",   # Covered by `ruff format`.
+  "COM812", # Conflicts with the formatter.
+  "E501",   # Conflicts with the formatter.
   "EM101",  # Not worth the annoyance.
   "EM102",  # Not worth the annoyance.
   # The following `D` rules are unnecessary.
@@ -61,8 +59,8 @@ ignore = [
   "D104",
   "D105",
   "D106",
-  "F403",    # Useful to reexport all public symbols from an imported modules in an `__init__.py`.
-  "ISC001",  # Conflicts with `ruff format`.
+  "ISC001",  # Conflicts with the formatter.
+  "PLC0414", # Redundant imports are used for re-exporting (See https://peps.python.org/pep-0484/#stub-files).
   "PLR0912", # Complex functions can be more legible than many small ones.
   "PT004",   # Useless distinction.
   "S101",    # `assert` is useful when used correctly (https://realpython.com/python-assert-statement).
@@ -70,14 +68,22 @@ ignore = [
   "TRY003",  # Not worth the annoyance.
   "TRY301",  # Not worth the annoyance.
 ]
-target-version = "py39"
 select = ["ALL"]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/**/*" = ["S603", "S607"]
 "__main__.py" = [
   "T201", # It's OK to use print in scripts.
 ]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.uv]
+dev-dependencies = [
+  # Keep in sync with version in `build-system.requires`.
+  "hatchling ==1.25.0",
+  "mypy >=0",
+  "pytest >= 0",
+  "ruff >= 0",
+]

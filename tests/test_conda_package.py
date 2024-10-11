@@ -8,7 +8,8 @@ from textwrap import dedent
 from typing import Any
 
 import pytest
-from flit_core.config import LoadedConfig
+from hatchling.metadata.core import ProjectMetadata
+from hatchling.plugin.manager import PluginManagerBound
 
 from python_wheel_to_conda_package import python_wheel_to_conda_package
 
@@ -78,17 +79,15 @@ def _install_conda_package(
 def conda_package_installed_fixture(
     build_string: str,
     indexed_local_conda_channel_path: Path,
-    pyproject: LoadedConfig,
+    project_metadata: ProjectMetadata[PluginManagerBound],
 ) -> None:
-    package_name = pyproject.metadata["name"]
-
     installed_packages = _get_installed_conda_packages()
 
     # Check that the Conda environment does not have these packages before the upcoming installation.
-    assert package_name not in installed_packages
+    assert project_metadata.name not in installed_packages
 
     output = _install_conda_package(
-        package_name, local_conda_channel_path=indexed_local_conda_channel_path
+        project_metadata.name, local_conda_channel_path=indexed_local_conda_channel_path
     )
     assert build_string in output
 
@@ -100,9 +99,9 @@ def installed_conda_packages_fixture() -> Mapping[str, str]:
 
 def test_conda_package_installation(
     installed_conda_packages: Mapping[str, str],
-    pyproject: LoadedConfig,
+    project_metadata: ProjectMetadata[PluginManagerBound],
 ) -> None:
-    assert pyproject.metadata["name"] in installed_conda_packages
+    assert project_metadata.name in installed_conda_packages
 
 
 @pytest.fixture(name="conda_env_directory", scope="module")
@@ -113,20 +112,30 @@ def conda_env_directory_fixture() -> Path:
     return Path(str(active_prefix or info["default_prefix"]))
 
 
-def test_data_files(conda_env_directory: Path, pyproject: LoadedConfig) -> None:
-    data_directory: Path = pyproject.data_directory
-    for data_file_path in data_directory.glob("**/*"):
-        if data_file_path.is_dir():
-            continue
+def test_shared_data_files(
+    conda_env_directory: Path, project_metadata: ProjectMetadata[PluginManagerBound]
+) -> None:
+    shared_data = project_metadata.hatch.build_targets["wheel"]["shared-data"]
+    assert isinstance(shared_data, dict)
+    for data_folder, shared_data_folder in shared_data.items():
+        assert isinstance(data_folder, str)
+        assert isinstance(shared_data_folder, str)
 
-        data_file_path_inside_conda_env = (
-            conda_env_directory / data_file_path.relative_to(data_directory)
-        )
+        data_directory = Path(project_metadata.root) / data_folder
+        shared_data_directory = conda_env_directory / shared_data_folder
 
-        expected_content = data_file_path.read_bytes()
-        assert len(expected_content) > 0
-        content = data_file_path_inside_conda_env.read_bytes()
-        assert content == expected_content
+        for file_path in data_directory.glob("**/*"):
+            if file_path.is_dir():
+                continue
+
+            shared_file_path = shared_data_directory / file_path.relative_to(
+                data_directory
+            )
+
+            expected_content = file_path.read_bytes()
+            assert len(expected_content) > 0
+            content = shared_file_path.read_bytes()
+            assert content == expected_content
 
 
 def _run_python_module_inside_conda_env(
@@ -139,9 +148,12 @@ def _run_python_module_inside_conda_env(
     )
 
 
-def test_module_execution(pyproject: LoadedConfig) -> None:
+def test_module_execution(
+    project_metadata: ProjectMetadata[PluginManagerBound],
+) -> None:
     output = _run_python_module_inside_conda_env(
-        pyproject.metadata["name"].replace("-", "_"), timeout=timedelta(seconds=10)
+        project_metadata.name.replace("-", "_"),
+        timeout=timedelta(seconds=10),
     )
 
     assert (

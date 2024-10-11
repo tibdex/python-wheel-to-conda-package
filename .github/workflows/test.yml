@@ -6,15 +6,20 @@ on:
 jobs:
   test:
     name: Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - run: poetry check --lock
-      - run: poetry run ruff format --check .
-      - run: poetry run ruff check .
-      - run: poetry run mypy --show-error-codes --package python_wheel_to_conda_package --package tests
-      - uses: conda-incubator/setup-miniconda@v2
+      - run: uv run ruff format --check
+      - run: uv run ruff check
+      - run: uv run mypy
+      - uses: conda-incubator/setup-miniconda@v3
         with:
-          conda-build-version: "3.27.0"
-      - run: poetry run pytest --capture=no
+          conda-build-version: "24.7.1"
+      - run: uv run pytest --capture=no
+      - run: uv build --wheel
+      - uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          name: python-wheel
+          path: dist/*.whl
