@@ -29,6 +29,8 @@ jobs:
     needs: test
     runs-on: ubuntu-24.04
     steps:
+      - uses: ./.github/actions/setup-uv
+      - run: uv --version
       - uses: actions/download-artifact@v4
         with:
           merge-multiple: true

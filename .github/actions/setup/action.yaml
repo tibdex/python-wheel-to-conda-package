@@ -3,10 +3,9 @@ description: Install Python and the dependencies
 runs:
   using: "composite"
   steps:
-    - uses: astral-sh/setup-uv@v2
+    - uses: ./.github/setup-uv
       with:
         enable-cache: true
-        version: "0.4.20"
     - run: uv python install 3.10.15
       shell: bash
     - run: uv sync --locked
