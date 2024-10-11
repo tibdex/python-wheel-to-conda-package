@@ -23,17 +23,3 @@ jobs:
           if-no-files-found: error
           name: python-wheel
           path: dist/*.whl
-
-  publish:
-    name: Publish
-    needs: test
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-uv
-      - run: uv --version
-      - uses: actions/download-artifact@v4
-        with:
-          merge-multiple: true
-          path: dist
-      - run: ls -la dist

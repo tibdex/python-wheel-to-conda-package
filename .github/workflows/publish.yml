@@ -27,9 +27,10 @@ jobs:
       # Required for trusted publishing.
       id-token: write
     steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-uv
       - uses: actions/download-artifact@v4
         with:
           merge-multiple: true
           path: dist
-      - run: ls -la dist
       - run: uv publish
