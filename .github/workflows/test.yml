@@ -30,5 +30,6 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/download-artifact@v4
-        path: dist
+        with:
+          path: dist
       - run: ls -la dist
