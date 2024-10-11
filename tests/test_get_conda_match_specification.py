@@ -20,12 +20,12 @@ from python_wheel_to_conda_package._get_conda_package_match_specification import
     [
         (
             "python",
-            CondaPackageMatchSpecification("python", ""),
+            CondaPackageMatchSpecification(package_name="python", version=""),
             None,
         ),
         (
             "python >=3.9",
-            CondaPackageMatchSpecification("python", ">=3.9"),
+            CondaPackageMatchSpecification(package_name="python", version=">=3.9"),
             None,
         ),
         (

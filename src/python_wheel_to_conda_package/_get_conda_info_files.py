@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import re
-from collections.abc import Iterable
+from collections.abc import Collection
 from typing import Any
 
 from ._get_conda_package_match_specification import (
@@ -83,7 +83,7 @@ def _get_index_json(
 
 
 def _get_paths_json(
-    record_items: Iterable[RecordItem],
+    record_items: Collection[RecordItem],
     /,
     *,
     data_folder_name: str | None = None,

@@ -34,7 +34,9 @@ def python_wheel_to_conda_package(
         raise ValueError(f"`{wheel_path}` does not point to an existing path.")
 
     if output_directory:
-        if not output_directory.is_dir():
+        if not output_directory.exists():
+            output_directory.mkdir(exist_ok=True, parents=True)
+        elif not output_directory.is_dir():
             raise ValueError(f"`{output_directory}` is not a directory.")
     else:
         output_directory = wheel_path.parent

@@ -17,3 +17,17 @@ jobs:
         with:
           conda-build-version: "24.7.1"
       - run: uv run pytest --capture=no
+      - run: uv build --wheel
+      - uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          name: Python wheel
+          path: dist/*.whl
+
+  publish:
+    name: Publish
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+      - run: ls -la dist

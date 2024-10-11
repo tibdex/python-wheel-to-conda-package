@@ -6,7 +6,7 @@ from packaging.markers import Marker
 from packaging.requirements import Requirement
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class CondaPackageMatchSpecification:
     package_name: str
     version: str
@@ -17,7 +17,7 @@ class CondaPackageMatchSpecification:
         ), "The Conda version specification cannot contain spaces (see https://conda.io/projects/conda/en/latest/user-guide/concepts/pkg-specs.html#package-match-specifications)."
 
 
-def is_extra_marker(marker: Marker, /) -> bool:
+def _is_extra_marker(marker: Marker, /) -> bool:
     return all(
         isinstance(_marker, tuple)
         and str(_marker[0]) == "extra"
@@ -36,7 +36,7 @@ def get_conda_package_match_specification(
             raise ValueError("Extra not supported.")
 
         if requirement.marker:
-            if is_extra_marker(requirement.marker):
+            if _is_extra_marker(requirement.marker):
                 return None
 
             raise ValueError("Marker not supported.")
@@ -49,5 +49,6 @@ def get_conda_package_match_specification(
         ) from error
     else:
         return CondaPackageMatchSpecification(
-            requirement.name, str(requirement.specifier)
+            package_name=requirement.name,
+            version=str(requirement.specifier),
         )

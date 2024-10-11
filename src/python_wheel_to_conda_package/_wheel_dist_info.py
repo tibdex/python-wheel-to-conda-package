@@ -22,7 +22,7 @@ def _validate_metadata_version(version: str, /) -> str:
     return version
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Metadata:
     package_name: str
     requires_dist: Sequence[str]
@@ -55,16 +55,17 @@ class Metadata:
         for line in lines:
             key, value = line.split(": ", maxsplit=1)
 
-            if key == metadata_version_key:
-                metadata_version = _validate_metadata_version(value)
-            elif key == "Name":
-                package_name = value
-            elif key == "Version":
-                version = value
-            elif key == "Requires-Python":
-                requires_python = value
-            elif key == "Requires-Dist":
-                requires_dist.append(value)
+            match key:
+                case key if key == metadata_version_key:
+                    metadata_version = _validate_metadata_version(value)
+                case "Name":
+                    package_name = value
+                case "Version":
+                    version = value
+                case "Requires-Python":
+                    requires_python = value
+                case "Requires-Dist":
+                    requires_dist.append(value)
 
         if not metadata_version:
             raise ValueError(f"Missing `{metadata_version_key}` metadata.")
@@ -83,7 +84,7 @@ class Metadata:
         )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class RecordItem:
     _SEPARATOR: ClassVar[str] = ","
     _SHA256_PREFIX: ClassVar[str] = "sha256="
@@ -137,7 +138,7 @@ class RecordItem:
         )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Record:
     items: Sequence[RecordItem]
 
@@ -156,7 +157,7 @@ class Record:
         return "\n".join([*[str(item) for item in self.items], ""])
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Wheel:
     EXPECTED_ENTRIES: ClassVar[Mapping[str, str]] = {
         "Root-Is-Purelib": "true",
@@ -204,7 +205,7 @@ class Wheel:
         )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class WheelDistInfo:
     metadata: Metadata
     record: Record
