@@ -31,5 +31,6 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
+          merge-multiple: true
           path: dist
       - run: ls -la dist
